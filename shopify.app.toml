@@ -1,0 +1,50 @@
+# shopify.app.toml
+
+client_id = "0b799cee6c0a4192b6117be8dbbf94ca"
+name = "AI upselling"
+application_url = "https://magdalen-nonerroneous-bella.ngrok-free.dev"
+embedded = true
+
+[build]
+automatically_update_urls_on_dev = true
+
+[webhooks]
+api_version = "2024-10"
+
+  [[webhooks.subscriptions]]
+  topics = ["orders/create"]
+  uri = "/webhooks/orders/create"
+
+  [[webhooks.subscriptions]]
+  topics = ["orders/paid"]
+  uri = "/webhooks/orders/paid"
+
+  [[webhooks.subscriptions]]
+  topics = ["orders/cancelled"]
+  uri = "/webhooks/orders/cancelled"
+
+  [[webhooks.subscriptions]]
+  topics = ["app/uninstalled"]
+  uri = "/webhooks/app-uninstalled"
+
+
+[webhooks.privacy_compliance]
+topics = [
+  "customers/data_request",
+  "customers/redact",
+  "shop/redact"
+]
+uri = "https://magdalen-nonerroneous-bella.ngrok-free.dev/webhooks/compliance"
+
+[access_scopes]
+scopes = "read_inventory,read_orders,read_products,write_inventory,write_orders,write_products,read_price_rules,write_price_rules,read_discounts,write_discounts"
+
+[auth]
+redirect_urls = [
+  "https://magdalen-nonerroneous-bella.ngrok-free.dev/auth/callback"
+]
+
+[app_proxy]
+url = "https://magdalen-nonerroneous-bella.ngrok-free.dev/upselling"
+subpath = "upselling"
+prefix = "apps"

@@ -1,0 +1,31 @@
+<div
+  class="ai-upsell-widget"
+  data-upsell-context="product"
+  data-shop="{{ shop.permanent_domain }}"
+  data-product-id="{{ product.id }}"
+  data-backend-url="{{ block.settings.backend_url }}"
+  data-title="{{ block.settings.title | escape }}"
+></div>
+
+{% schema %}
+{
+  "name": "AI Upsell Product Widget",
+  "target": "section",
+  "stylesheet": "upsell-widget.css",
+  "javascript": "upsell-widget.js",
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Widget heading",
+      "default": "You may also like"
+    },
+    {
+      "type": "text",
+      "id": "backend_url",
+      "label": "Backend URL",
+      "default": "https://your-backend-domain.com"
+    }
+  ]
+}
+{% endschema %}

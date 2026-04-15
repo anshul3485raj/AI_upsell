@@ -1,0 +1,31 @@
+<div
+  class="ai-upsell-widget"
+  data-upsell-context="cart"
+  data-shop="{{ shop.permanent_domain }}"
+  data-cart-product-ids="{% for item in cart.items %}{{ item.product_id }}{% unless forloop.last %},{% endunless %}{% endfor %}"
+  data-backend-url="{{ block.settings.backend_url }}"
+  data-title="{{ block.settings.title | escape }}"
+></div>
+
+{% schema %}
+{
+  "name": "AI Upsell Cart Widget",
+  "target": "section",
+  "stylesheet": "upsell-widget.css",
+  "javascript": "upsell-widget.js",
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Widget heading",
+      "default": "Recommended for your cart"
+    },
+    {
+      "type": "text",
+      "id": "backend_url",
+      "label": "Backend URL",
+      "default": "https://your-backend-domain.com"
+    }
+  ]
+}
+{% endschema %}

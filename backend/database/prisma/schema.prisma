@@ -1,0 +1,109 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum TriggerType {
+  PRODUCT
+  CART
+}
+
+enum DiscountType {
+  NONE
+  PERCENTAGE
+  FIXED
+}
+
+enum UpsellEventType {
+  IMPRESSION
+  CONVERSION
+}
+
+model Shop {
+  id          String        @id @default(cuid())
+  domain      String        @unique
+  accessToken String
+  scopes      String
+  installedAt DateTime      @default(now())
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  upsellRules UpsellRule[]
+  products    Product[]
+  orders      Order[]
+  events      UpsellEvent[]
+}
+
+model UpsellRule {
+  id                    String       @id @default(cuid())
+  shopId                String
+  name                  String
+  triggerType           TriggerType
+  sourceProductId       String?
+  sourceCollectionId    String?
+  sourceTag             String?
+  manualRecommendations String[]     @default([])
+  discountType          DiscountType @default(NONE)
+  discountValue         Float        @default(0)
+  isActive              Boolean      @default(true)
+  createdAt             DateTime     @default(now())
+  updatedAt             DateTime     @updatedAt
+  shop                  Shop         @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  events                UpsellEvent[]
+
+  @@index([shopId, triggerType, isActive])
+}
+
+model Product {
+  id                   String   @id @default(cuid())
+  shopId               String
+  productGid           String
+  title                String
+  handle               String?
+  featuredImageUrl     String?
+  minPrice             Float?
+  currencyCode         String?
+  firstVariantGid      String?
+  tags                 String[] @default([])
+  collectionIds        String[] @default([])
+  updatedFromShopifyAt DateTime?
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+  shop                 Shop     @relation(fields: [shopId], references: [id], onDelete: Cascade)
+
+  @@unique([shopId, productGid])
+  @@index([shopId, updatedAt])
+}
+
+model Order {
+  id           String   @id @default(cuid())
+  shopId       String
+  orderGid     String
+  lineItems    Json
+  subtotal     Float?
+  currencyCode String?
+  createdAt    DateTime @default(now())
+  shop         Shop     @relation(fields: [shopId], references: [id], onDelete: Cascade)
+
+  @@unique([shopId, orderGid])
+  @@index([shopId, createdAt])
+}
+
+model UpsellEvent {
+  id                   String          @id @default(cuid())
+  shopId               String
+  ruleId               String?
+  sourceProductId      String?
+  recommendedProductId String
+  orderGid             String?
+  type                 UpsellEventType
+  meta                 Json?
+  createdAt            DateTime        @default(now())
+  shop                 Shop            @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  rule                 UpsellRule?     @relation(fields: [ruleId], references: [id], onDelete: SetNull)
+
+  @@index([shopId, type, createdAt])
+}

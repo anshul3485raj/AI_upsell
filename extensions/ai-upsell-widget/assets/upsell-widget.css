@@ -1,0 +1,67 @@
+.ai-upsell-inner {
+  border: 1px solid #d8e2ef;
+  border-radius: 14px;
+  padding: 16px;
+  background: #ffffff;
+  margin-top: 16px;
+}
+
+.ai-upsell-title {
+  margin: 0 0 12px;
+  font-size: 20px;
+  color: #163153;
+}
+
+.ai-upsell-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 12px;
+}
+
+.ai-upsell-card {
+  border: 1px solid #dfe8f2;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.ai-upsell-image {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+  display: block;
+}
+
+.ai-upsell-body {
+  padding: 10px;
+}
+
+.ai-upsell-item-title {
+  margin: 0 0 8px;
+  font-size: 15px;
+  color: #153355;
+}
+
+.ai-upsell-price {
+  font-size: 14px;
+  font-weight: 700;
+  color: #0d2e52;
+}
+
+.ai-upsell-discount {
+  margin-top: 5px;
+  font-size: 12px;
+  color: #0f8c42;
+}
+
+.ai-upsell-add-btn {
+  margin-top: 10px;
+  width: 100%;
+  border: none;
+  border-radius: 8px;
+  background: #005bd3;
+  color: #fff;
+  padding: 9px 10px;
+  font-weight: 700;
+  cursor: pointer;
+}
