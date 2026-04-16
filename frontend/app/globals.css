@@ -28,6 +28,11 @@ a {
   margin: 0 auto;
   padding: 24px 16px 40px;
 }
+main.app-shell nav.nav a:hover {
+    background: #6399e1;
+    color: #fff;
+    transition: 0.3s;
+}
 
 .surface {
   background: var(--surface);

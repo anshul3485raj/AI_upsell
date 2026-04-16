@@ -1,0 +1,78 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Shop {
+  id            String     @id @default(cuid())
+  domain        String     @unique
+  accessToken   String
+  installedAt   DateTime   @default(now())
+  products      Product[]
+  upsellRules   UpsellRule[]
+  orders        Order[]
+  analytics     Analytics[]
+}
+
+model Product {
+  id          String   @id @default(cuid())
+  shop        Shop     @relation(fields: [shopId], references: [id])
+  shopId      String
+  productId   String   @unique
+  title       String
+  handle      String
+  price       Decimal
+  image       String?
+  tags        String[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([shopId])
+  @@index([tags], type: Gin)
+}
+
+model UpsellRule {
+  id                    String   @id @default(cuid())
+  shop                  Shop     @relation(fields: [shopId], references: [id])
+  shopId                String
+  triggerProduct        Product  @relation("TriggerProduct", fields: [triggerProductId], references: [id])
+  triggerProductId      String
+  recommendedProductIds String[]
+  type                  String
+  discount              Float
+  createdAt             DateTime @default(now())
+
+  @@index([shopId])
+}
+
+model Order {
+  id          String   @id @default(cuid())
+  shop        Shop     @relation(fields: [shopId], references: [id])
+  shopId      String
+  orderId     String   @unique
+  totalPrice  Decimal
+  lineItems   String
+  createdAt   DateTime @default(now())
+}
+
+model Analytics {
+  id          String   @id @default(cuid())
+  shop        Shop     @relation(fields: [shopId], references: [id])
+  shopId      String
+  eventType   AnalyticsEventType
+  productId   String?
+  ruleId      String?
+  metadata    Json?
+  createdAt   DateTime @default(now())
+
+  @@index([shopId, eventType])
+}
+
+enum AnalyticsEventType {
+  IMPRESSION
+  CONVERSION
+}
