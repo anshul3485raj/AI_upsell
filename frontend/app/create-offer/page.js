@@ -1,12 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import Navigation from "../../components/Navigation";
+import { useSearchParams } from "next/navigation";
 import OfferForm from "../../components/OfferForm";
 import { useAuthenticatedFetch } from "../../hooks/useAuthenticatedFetch";
 
 export default function CreateOfferPage() {
   const { apiFetch, isReady } = useAuthenticatedFetch();
+  const searchParams = useSearchParams();
+  const triggerType = searchParams.get("trigger") || "PRODUCT";
+  const widgetName = searchParams.get("widget") || "";
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
@@ -28,15 +31,25 @@ export default function CreateOfferPage() {
   };
 
   return (
-    <main className="app-shell">
-      <Navigation />
-      <h1>Create Offer</h1>
-      <p className="small">
-        Configure rule-based recommendations for product pages or cart flow.
-      </p>
-      <OfferForm onSave={saveRule} />
-      {message ? <p className="small" style={{ color: "#2e7d32" }}>{message}</p> : null}
-      {error ? <p className="small" style={{ color: "#c62828" }}>{error}</p> : null}
-    </main>
+    <div className="page-section">
+      <div className="surface">
+        <h1>Create Offer</h1>
+        <p className="small">
+          Configure rule-based recommendations for product pages or cart flow.
+        </p>
+      </div>
+
+      <div className="surface">
+        <OfferForm
+          onSave={saveRule}
+          initialData={{
+            triggerType,
+            name: widgetName ? `${widgetName} Upsell` : "",
+          }}
+        />
+        {message ? <p className="small success-text">{message}</p> : null}
+        {error ? <p className="small error-text">{error}</p> : null}
+      </div>
+    </div>
   );
 }

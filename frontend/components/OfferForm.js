@@ -14,8 +14,14 @@ const initialState = {
   isActive: true,
 };
 
-export default function OfferForm({ onSave }) {
-  const [form, setForm] = useState(initialState);
+export default function OfferForm({ onSave, initialData = {} }) {
+  const [form, setForm] = useState({
+    ...initialState,
+    ...initialData,
+    manualRecommendations: Array.isArray(initialData.manualRecommendations)
+      ? initialData.manualRecommendations.join(", ")
+      : initialData.manualRecommendations ?? "",
+  });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 

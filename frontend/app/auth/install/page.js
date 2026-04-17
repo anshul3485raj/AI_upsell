@@ -17,11 +17,11 @@ export default function InstallPage() {
   }, [shop, host]);
 
   return (
-    <main className="app-shell">
+    <div className="install-shell">
       <div className="surface">
         <h1>Installing app...</h1>
         <p className="small">Redirecting to Shopify authorization.</p>
       </div>
-    </main>
+    </div>
   );
 }

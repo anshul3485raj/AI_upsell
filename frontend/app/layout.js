@@ -1,6 +1,7 @@
 import "./globals.css";
 import { Suspense } from "react";
 import Providers from "./providers";
+import Navigation from "../components/Navigation";
 
 export const metadata = {
   title: "AI Upsell Admin",
@@ -13,7 +14,16 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body>
         <Suspense fallback={<div />}>
-          <Providers>{children}</Providers>
+          <Providers>
+            <div className="app-shell">
+              <aside className="sidebar">
+                <div className="sidebar-brand">Ai Upsell</div>
+                <Navigation />
+              </aside>
+
+              <main className="page-body">{children}</main>
+            </div>
+          </Providers>
         </Suspense>
       </body>
     </html>
