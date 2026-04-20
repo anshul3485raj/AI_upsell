@@ -60,7 +60,7 @@ export default function CheckoutExtensionSubpage({ params }) {
             Back to overview
           </Link>
         </div>
-        <p className="small">{page.description}</p>
+      <p className="small">{page.description}</p>
       </div>
 
       <div className="checkout-page-grid">

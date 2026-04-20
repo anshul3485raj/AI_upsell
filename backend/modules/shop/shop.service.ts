@@ -337,6 +337,102 @@ export class ShopService {
       });
   }
 
+  async listProducts(shopDomain: string, searchQuery?: string, limit = 20) {
+    const shop = await this.getShopByDomain(shopDomain);
+    const whereClause = {
+      shopId: shop.id,
+      title: searchQuery ? { contains: searchQuery, mode: "insensitive" } : undefined,
+    };
+
+    const dbProducts = await this.prismaService.product.findMany({
+      where: whereClause,
+      orderBy: {
+        updatedFromShopifyAt: "desc",
+      },
+      take: limit,
+    });
+
+    if (dbProducts.length > 0) {
+      return dbProducts.map((product) => ({
+        id: product.id,
+        productGid: product.productGid,
+        title: product.title,
+        handle: product.handle,
+        featuredImageUrl: product.featuredImageUrl,
+        price: product.minPrice ?? 0,
+        currencyCode: product.currencyCode,
+        variantGid: product.firstVariantGid,
+      }));
+    }
+
+    const query = searchQuery || "";
+    const gql = `
+      query listProducts($first: Int!, $query: String) {
+        products(first: $first, query: $query) {
+          edges {
+            node {
+              id
+              title
+              handle
+              featuredImage {
+                url
+              }
+              variants(first: 1) {
+                nodes {
+                  id
+                  price {
+                    amount
+                    currencyCode
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    `;
+
+    const data = await this.shopifyGraphqlService.request<{
+      products: {
+        edges: Array<{
+          node: {
+            id: string;
+            title: string;
+            handle: string | null;
+            featuredImage?: { url: string } | null;
+            variants: {
+              nodes: Array<{
+                id: string;
+                price: {
+                  amount: string;
+                  currencyCode: string;
+                };
+              }>;
+            };
+          };
+        }>;
+      };
+    }>(shop.domain, shop.accessToken, gql, {
+      first: limit,
+      query,
+    });
+
+    return data.products.edges.map((edge) => {
+      const node = edge.node;
+      const firstVariant = node.variants.nodes[0];
+      return {
+        id: node.id,
+        productGid: node.id,
+        title: node.title,
+        handle: node.handle,
+        featuredImageUrl: node.featuredImage?.url ?? null,
+        price: Number(firstVariant?.price.amount ?? 0),
+        currencyCode: firstVariant?.price.currencyCode ?? null,
+        variantGid: firstVariant?.id ?? null,
+      };
+    });
+  }
+
   private async fetchLatestProductData(
     shopDomain: string,
     accessToken: string,

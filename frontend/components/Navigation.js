@@ -32,7 +32,20 @@ const links = [
   { href: "/section/cart-drawer", label: "Cart Drawer", icon: "🛍️" },
   { href: "/section/my-plan", label: "My Plan", icon: "💳" },
   { href: "/section/exclude-products", label: "Exclude Products", icon: "🚫" },
-  { href: "/section/more", label: "More", icon: "⋯" },
+  {
+    href: "/section/more",
+    label: "More",
+    icon: "⋯",
+    submenu: [
+      { href: "/section/help", label: "Help", icon: "❓" },
+      { href: "/section/translations", label: "Translations", icon: "🌐" },
+      { href: "/section/offer", label: "Offer", icon: "🏷️" },
+      { href: "/section/flush-cache", label: "Flush Cache", icon: "🧹" },
+      { href: "/section/my-account", label: "My Account", icon: "👤" },
+      { href: "/section/faqs", label: "FAQs", icon: "📋" },
+      { href: "/section/integrations", label: "Integrations", icon: "🔌" },
+    ],
+  },
 ];
 
 export default function Navigation() {

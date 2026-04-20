@@ -7,6 +7,7 @@ import {
   HttpCode,
   Post,
   Put,
+  Query,
   Req,
 } from "@nestjs/common";
 import { Request } from "express";
@@ -23,6 +24,19 @@ export class ShopController {
       throw new BadRequestException("Session shop domain was not found.");
     }
     return this.shopService.getShopProfile(req.shopDomain);
+  }
+
+  @Get("products")
+  async listProducts(
+    @Req() req: Request,
+    @Query("q") q?: string,
+    @Query("limit") limit = "20",
+  ) {
+    if (!req.shopDomain) {
+      throw new BadRequestException("Session shop domain was not found.");
+    }
+    const parsedLimit = Math.min(50, Math.max(1, Number(limit) || 20));
+    return this.shopService.listProducts(req.shopDomain, q, parsedLimit);
   }
 
   @Put("token")

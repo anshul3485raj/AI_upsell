@@ -206,6 +206,7 @@ a {
   color: #123766;
 }
 
+
 .hero-panel {
   display: grid;
   grid-template-columns: 1.5fr 1fr;
@@ -2669,6 +2670,223 @@ a {
   background: #f9fafc;
 }
 
+.help-page {
+  gap: 18px;
+}
+
+.help-page-header {
+  margin-bottom: 0;
+}
+
+.help-page-header h1 {
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: #43225d;
+}
+
+.help-language-select select {
+  min-width: 184px;
+  background: #ffffff;
+}
+
+.help-page-shell {
+  display: grid;
+  gap: 34px;
+  padding: 26px;
+  background:
+    radial-gradient(circle at top right, rgba(232, 237, 252, 0.95) 0%, rgba(245, 247, 255, 0.88) 30%, rgba(255, 255, 255, 0.98) 100%);
+  border-radius: 18px;
+}
+
+.help-top-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 28px;
+}
+
+.help-support-card {
+  background: #ffffff;
+  border: 1px solid #d9e1ee;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 10px 28px rgba(19, 35, 59, 0.05);
+}
+
+.help-support-card-head {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 28px 24px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.help-support-card-head h2 {
+  margin: 0;
+  font-size: 1.05rem;
+  color: #243042;
+}
+
+.help-support-icon {
+  width: 56px;
+  height: 56px;
+  color: #333d4d;
+  flex: 0 0 auto;
+}
+
+.help-support-icon svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.help-support-card-body {
+  display: grid;
+  gap: 14px;
+  padding: 22px 24px 26px;
+}
+
+.help-resource-link {
+  color: #4f5b6b;
+  font-weight: 500;
+  width: fit-content;
+  transition: color 0.2s ease;
+}
+
+.help-resource-link:hover {
+  color: #3a246a;
+}
+
+.help-email-link {
+  font-weight: 700;
+}
+
+.help-recommended-section {
+  display: grid;
+  gap: 20px;
+  max-width: 1040px;
+  margin: 0 auto;
+}
+
+.help-recommended-section h3 {
+  margin: 0;
+  text-align: center;
+  font-size: 1.15rem;
+  color: #35185c;
+}
+
+.help-app-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.help-app-card {
+  display: grid;
+  gap: 14px;
+  padding: 16px 18px 18px;
+  border-radius: 12px;
+  border: 1px solid #e2e8f4;
+  background: #ffffff;
+  box-shadow: 0 10px 24px rgba(19, 35, 59, 0.08);
+}
+
+.help-app-title-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.help-app-logo {
+  width: 38px;
+  height: 38px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 800;
+  flex: 0 0 auto;
+}
+
+.help-app-logo.purple {
+  background: linear-gradient(135deg, #5d2ebd 0%, #7e52da 100%);
+}
+
+.help-app-logo.indigo {
+  background: linear-gradient(135deg, #2324b5 0%, #4b44e6 100%);
+}
+
+.help-app-logo.blue {
+  background: linear-gradient(135deg, #3c71ff 0%, #4aa7ff 100%);
+}
+
+.help-app-card h4 {
+  margin: 0 0 6px;
+  font-size: 0.98rem;
+  font-weight: 500;
+  color: #4c5565;
+}
+
+.help-app-card p {
+  margin: 0;
+  color: #8a92a6;
+  line-height: 1.45;
+  font-size: 0.94rem;
+}
+
+.help-app-meta {
+  color: #9199ab;
+  font-size: 0.95rem;
+}
+
+.help-app-button {
+  justify-self: start;
+  border: none;
+  border-radius: 4px;
+  padding: 10px 16px;
+  background: #e11a74;
+  color: #ffffff;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.help-app-button:hover {
+  background: #c81365;
+}
+
+@media (max-width: 1100px) {
+  .help-top-grid,
+  .help-app-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .help-recommended-section {
+    max-width: none;
+  }
+}
+
+@media (max-width: 760px) {
+  .help-page-shell {
+    padding: 18px;
+  }
+
+  .help-support-card-head,
+  .help-support-card-body {
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+
+  .help-page-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .help-language-select,
+  .help-language-select select {
+    width: 100%;
+  }
+}
+
 .settings-list {
   display: grid;
   gap: 12px;
@@ -2858,3 +3076,4 @@ a {
     padding: 20px;
   }
 }
+
