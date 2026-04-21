@@ -19,7 +19,7 @@ const panels = [
 
 export default function CustomizeWidgetsPage() {
   const { apiFetch, isReady } = useAuthenticatedFetch();
-  const [activePanel, setActivePanel] = useState("layout");
+  const [activePanel, setActivePanel] = useState("");
   const [heading, setHeading] = useState("You May Also Like");
   const [buttonText, setButtonText] = useState("ADD TO CART +");
   const [showPrice, setShowPrice] = useState(true);
@@ -106,200 +106,278 @@ export default function CustomizeWidgetsPage() {
         <aside className="customize-sidebar">
           <div className="settings-card">
             <div className="settings-card-header">
-              <h2>Widget's Layout</h2>
-            </div>
-            <div className="settings-card-body">
-              <div className="settings-group">
-                <div className="settings-label">Desktop View</div>
-                <div className="radio-row">
-                  <label className={layoutType === "grid" ? "radio-option selected" : "radio-option"}>
-                    <input
-                      type="radio"
-                      name="layoutMode"
-                      checked={layoutType === "grid"}
-                      onChange={() => setLayoutType("grid")}
-                    />
-                    Grid
-                  </label>
-                  <label className={layoutType === "slider" ? "radio-option selected" : "radio-option"}>
-                    <input
-                      type="radio"
-                      name="layoutMode"
-                      checked={layoutType === "slider"}
-                      onChange={() => setLayoutType("slider")}
-                    />
-                    Slider
-                  </label>
-                </div>
-              </div>
-
-              <div className="settings-group">
-                <div className="settings-label">Choose Template</div>
-                <div className="radio-row">
-                  <label className={templateType === "template1" ? "radio-option selected" : "radio-option"}>
-                    <input
-                      type="radio"
-                      name="templateType"
-                      checked={templateType === "template1"}
-                      onChange={() => setTemplateType("template1")}
-                    />
-                    Template1
-                  </label>
-                  <label className={templateType === "template2" ? "radio-option selected" : "radio-option"}>
-                    <input
-                      type="radio"
-                      name="templateType"
-                      checked={templateType === "template2"}
-                      onChange={() => setTemplateType("template2")}
-                    />
-                    Template2
-                  </label>
-                </div>
-              </div>
-
-              <div className="settings-group">
-                <label>
-                  <span className="settings-label">Total Number Of Products (Max 15 Products)</span>
-                  <input
-                    type="number"
-                    className="input"
-                    min={1}
-                    max={15}
-                    value={totalProducts}
-                    onChange={(event) => setTotalProducts(Number(event.target.value))}
-                  />
-                </label>
-              </div>
-
-              <div className="settings-group">
-                <label>
-                  <span className="settings-label">Number Of Products Per Row</span>
-                  <input
-                    type="number"
-                    className="input"
-                    min={1}
-                    max={5}
-                    value={productsPerRow}
-                    onChange={(event) => setProductsPerRow(Number(event.target.value))}
-                  />
-                </label>
-              </div>
+              <h2>Settings</h2>
             </div>
           </div>
-
           <div className="settings-menu">
-            {panels.slice(1).map((panel) => (
-              <button
-                key={panel.key}
-                type="button"
-                className={activePanel === panel.key ? "settings-menu-item active" : "settings-menu-item"}
-                onClick={() => setActivePanel(panel.key)}
-              >
-                <span>{panel.label}</span>
-                <span className="settings-chevron">›</span>
-              </button>
-            ))}
-          </div>
 
-          <div className="panel-detail-card">
-            <div className="panel-detail-header">
-              <h3>{panels.find((panel) => panel.key === activePanel)?.label}</h3>
+            {/* ✅ NEW: Widget Layout Accordion */}
+            <div>
+              <button
+                type="button"
+                className={activePanel === "layout" ? "settings-menu-item active" : "settings-menu-item"}
+                onClick={() =>
+                  setActivePanel(activePanel === "layout" ? "" : "layout")
+                }
+              >
+                <span>Widget's Layout</span>
+                <span className="settings-chevron">
+                  {activePanel === "layout" ? "−" : "›"}
+                </span>
+              </button>
+
+              {activePanel === "layout" && (
+                <div className="panel-detail-card">
+
+                  <div className="settings-group">
+                    <div className="settings-label">Desktop View</div>
+                    <div className="radio-row">
+                      <label className={layoutType === "grid" ? "radio-option selected" : "radio-option"}>
+                        <input
+                          type="radio"
+                          checked={layoutType === "grid"}
+                          onChange={() => setLayoutType("grid")}
+                        />
+                        Grid
+                      </label>
+
+                      <label className={layoutType === "slider" ? "radio-option selected" : "radio-option"}>
+                        <input
+                          type="radio"
+                          checked={layoutType === "slider"}
+                          onChange={() => setLayoutType("slider")}
+                        />
+                        Slider
+                      </label>
+                    </div>
+                  </div>
+
+                  <div className="settings-group">
+                    <div className="settings-label">Choose Template</div>
+                    <div className="radio-row">
+                      <label className={templateType === "template1" ? "radio-option selected" : "radio-option"}>
+                        <input
+                          type="radio"
+                          checked={templateType === "template1"}
+                          onChange={() => setTemplateType("template1")}
+                        />
+                        Template1
+                      </label>
+
+                      <label className={templateType === "template2" ? "radio-option selected" : "radio-option"}>
+                        <input
+                          type="radio"
+                          checked={templateType === "template2"}
+                          onChange={() => setTemplateType("template2")}
+                        />
+                        Template2
+                      </label>
+                    </div>
+                  </div>
+
+                  <div className="settings-group">
+                    <label>
+                      <span className="settings-label">Total Number Of Products (Max 15 Products)</span>
+                      <input
+                        type="number"
+                        className="input"
+                        min={1}
+                        max={15}
+                        value={totalProducts}
+                        onChange={(event) => setTotalProducts(Number(event.target.value))}
+                      />
+                    </label>
+                  </div>
+
+                  <div className="settings-group">
+                    <label>
+                      <span className="settings-label">Number Of Products Per Row</span>
+                      <input
+                        type="number"
+                        className="input"
+                        min={1}
+                        max={5}
+                        value={productsPerRow}
+                        onChange={(event) => setProductsPerRow(Number(event.target.value))}
+                      />
+                    </label>
+                  </div>
+
+                </div>
+              )}
             </div>
 
-                    {activePanel === "heading" && (
-              <div className="settings-group">
-                <label>
-                  <span>Section title</span>
-                  <input className="input" value={heading} onChange={(event) => setHeading(event.target.value)} />
-                </label>
-                <label>
-                  <span>Alignment</span>
-                  <select className="select" value={headingAlignment} onChange={(event) => setHeadingAlignment(event.target.value)}>
-                    <option value="left">Left</option>
-                    <option value="center">Center</option>
-                    <option value="right">Right</option>
-                  </select>
-                </label>
-                <label>
-                  <span>Font Size (px)</span>
-                  <input
-                    type="number"
-                    className="input"
-                    min={16}
-                    max={48}
-                    value={headingFontSize}
-                    onChange={(event) => setHeadingFontSize(Number(event.target.value))}
-                  />
-                </label>
-                <label>
-                  <span>Color</span>
-                  <input type="color" className="input" value={headingColor} onChange={(event) => setHeadingColor(event.target.value)} />
-                </label>
+            {/* ✅ YOUR EXISTING PANELS (UNCHANGED) */}
+            {panels.slice(1).map((panel) => (
+              <div key={panel.key}>
+
+                <button
+                  type="button"
+                  className={activePanel === panel.key ? "settings-menu-item active" : "settings-menu-item"}
+                  onClick={() =>
+                    setActivePanel(activePanel === panel.key ? "" : panel.key)
+                  }
+                >
+                  <span>{panel.label}</span>
+                  <span className="settings-chevron">
+                    {activePanel === panel.key ? "−" : "›"}
+                  </span>
+                </button>
+
+                {activePanel === panel.key && (
+                  <div className="panel-detail-card">
+                    <div className="panel-detail-header">
+                      <h3>{panel.label}</h3>
+                    </div>
+
+                    {/* 👇 ALL YOUR ORIGINAL CONTENT SAME */}
+
+                    {panel.key === "heading" && (
+                      <div className="settings-group">
+                        <label>
+                          <span>Section title</span>
+                          <input
+                            className="input"
+                            value={heading}
+                            onChange={(event) => setHeading(event.target.value)}
+                          />
+                        </label>
+
+                        <label>
+                          <span>Alignment</span>
+                          <select
+                            className="select"
+                            value={headingAlignment}
+                            onChange={(event) => setHeadingAlignment(event.target.value)}
+                          >
+                            <option value="left">Left</option>
+                            <option value="center">Center</option>
+                            <option value="right">Right</option>
+                          </select>
+                        </label>
+
+                        <label>
+                          <span>Font Size (px)</span>
+                          <input
+                            type="number"
+                            className="input"
+                            min={16}
+                            max={48}
+                            value={headingFontSize}
+                            onChange={(event) =>
+                              setHeadingFontSize(Number(event.target.value))
+                            }
+                          />
+                        </label>
+
+                        <label>
+                          <span>Color</span>
+                          <input
+                            type="color"
+                            className="input"
+                            value={headingColor}
+                            onChange={(event) => setHeadingColor(event.target.value)}
+                          />
+                        </label>
+                      </div>
+                    )}
+
+                    {panel.key === "title" && (
+                      <label className="checkbox-row">
+                        <span>Show product title</span>
+                        <input type="checkbox" defaultChecked />
+                      </label>
+                    )}
+
+                    {panel.key === "button" && (
+                      <label>
+                        <span>Button text</span>
+                        <input
+                          className="input"
+                          value={buttonText}
+                          onChange={(event) => setButtonText(event.target.value)}
+                        />
+                      </label>
+                    )}
+
+                    {panel.key === "price" && (
+                      <label className="checkbox-row">
+                        <span>Show price</span>
+                        <input
+                          type="checkbox"
+                          checked={showPrice}
+                          onChange={() => setShowPrice((c) => !c)}
+                        />
+                      </label>
+                    )}
+
+                    {panel.key === "image" && (
+                      <label className="checkbox-row">
+                        <span>Show product image</span>
+                        <input
+                          type="checkbox"
+                          checked={showImage}
+                          onChange={() => setShowImage((c) => !c)}
+                        />
+                      </label>
+                    )}
+
+                    {panel.key === "reviews" && (
+                      <label className="checkbox-row">
+                        <span>Show product reviews</span>
+                        <input
+                          type="checkbox"
+                          checked={showReviews}
+                          onChange={() => setShowReviews((c) => !c)}
+                        />
+                      </label>
+                    )}
+
+                    {panel.key === "currency" && (
+                      <label>
+                        <span>Currency symbol</span>
+                        <input
+                          className="input"
+                          value={currency}
+                          onChange={(event) => setCurrency(event.target.value)}
+                        />
+                      </label>
+                    )}
+
+                    {panel.key === "stock" && (
+                      <label>
+                        <span>Stock message</span>
+                        <input
+                          className="input"
+                          value={stockMessage}
+                          onChange={(event) => setStockMessage(event.target.value)}
+                        />
+                      </label>
+                    )}
+
+                    {panel.key === "wishlist" && (
+                      <label className="checkbox-row">
+                        <span>Show wishlist button</span>
+                        <input type="checkbox" defaultChecked={false} />
+                      </label>
+                    )}
+
+                    {panel.key === "css" && (
+                      <label>
+                        <span>Custom CSS</span>
+                        <textarea
+                          className="textarea"
+                          value={customCss}
+                          onChange={(event) => setCustomCss(event.target.value)}
+                          rows={5}
+                        />
+                      </label>
+                    )}
+
+                  </div>
+                )}
               </div>
-            )}
-
-            {activePanel === "title" && (
-              <label className="checkbox-row">
-                <span>Show product title</span>
-                <input type="checkbox" defaultChecked />
-              </label>
-            )}
-
-            {activePanel === "button" && (
-              <label>
-                <span>Button text</span>
-                <input className="input" value={buttonText} onChange={(event) => setButtonText(event.target.value)} />
-              </label>
-            )}
-
-            {activePanel === "price" && (
-              <label className="checkbox-row">
-                <span>Show price</span>
-                <input type="checkbox" checked={showPrice} onChange={() => setShowPrice((current) => !current)} />
-              </label>
-            )}
-
-            {activePanel === "image" && (
-              <label className="checkbox-row">
-                <span>Show product image</span>
-                <input type="checkbox" checked={showImage} onChange={() => setShowImage((current) => !current)} />
-              </label>
-            )}
-
-            {activePanel === "reviews" && (
-              <label className="checkbox-row">
-                <span>Show product reviews</span>
-                <input type="checkbox" checked={showReviews} onChange={() => setShowReviews((current) => !current)} />
-              </label>
-            )}
-
-            {activePanel === "currency" && (
-              <label>
-                <span>Currency symbol</span>
-                <input className="input" value={currency} onChange={(event) => setCurrency(event.target.value)} />
-              </label>
-            )}
-
-            {activePanel === "stock" && (
-              <label>
-                <span>Stock message</span>
-                <input className="input" value={stockMessage} onChange={(event) => setStockMessage(event.target.value)} />
-              </label>
-            )}
-
-            {activePanel === "wishlist" && (
-              <label className="checkbox-row">
-                <span>Show wishlist button</span>
-                <input type="checkbox" defaultChecked={false} />
-              </label>
-            )}
-
-            {activePanel === "css" && (
-              <label>
-                <span>Custom CSS</span>
-                <textarea className="textarea" value={customCss} onChange={(event) => setCustomCss(event.target.value)} rows={5} />
-              </label>
-            )}
+            ))}
           </div>
         </aside>
 

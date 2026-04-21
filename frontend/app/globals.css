@@ -426,6 +426,7 @@ a {
   width: 100%;
   padding: 12px;
   background: #ff2d6f;
+  height: fit-content;
   color: #fff;
   border: none;
   text-align: center;
@@ -794,15 +795,7 @@ a {
   gap: 10px;
 }
 
-.toggle-button {
-  width: 44px;
-  height: 24px;
-  border-radius: 999px;
-  border: 1px solid #dcdcec;
-  background: #f3f3fb;
-  position: relative;
-  padding: 0;
-}
+
 
 .toggle-button.active {
   background: linear-gradient(90deg, #5b3fd9 0%, #7c62ff 100%);
@@ -816,7 +809,7 @@ a {
   border-radius: 999px;
   background: #ffffff;
   position: absolute;
-  top: 3px;
+  top: 2px;
   left: 3px;
   transition: transform 0.2s ease;
 }
@@ -835,6 +828,7 @@ a {
   border-radius: 18px;
   overflow: hidden;
   background: #f8f9ff;
+  height: max-content;
 }
 
 .accordion-header {
@@ -851,7 +845,6 @@ a {
 
 .product-addons-accordion {
   display: grid;
-  gap: 12px;
 }
 
 .accordion-body {
@@ -1534,7 +1527,6 @@ a {
   border-radius: 24px;
   padding: 24px;
   display: grid;
-  gap: 18px;
 }
 
 .addons-panel-header {
@@ -1671,32 +1663,22 @@ a {
   gap: 12px;
   padding: 8px 0;
 }
-
+.quick-search-panel button.toggle-button.active {
+    width: 60px;
+}
 .toggle-button {
-  width: 44px;
+  width: 46px;
   height: 24px;
   border-radius: 999px;
   border: 1px solid #dcdcec;
-  background: #f3f3fb;
   position: relative;
+  background: #c9c9c9;
   padding: 0;
 }
 
 .toggle-button.active {
   background: linear-gradient(90deg, #5b3fd9 0%, #7c62ff 100%);
   border-color: transparent;
-}
-
-.toggle-knob {
-  display: block;
-  width: 18px;
-  height: 18px;
-  border-radius: 999px;
-  background: #ffffff;
-  position: absolute;
-  top: 3px;
-  left: 3px;
-  transition: transform 0.2s ease;
 }
 
 .toggle-button.active .toggle-knob {
@@ -2072,29 +2054,29 @@ a {
 
 .customize-grid {
   display: grid;
-  grid-template-columns: 320px 1fr;
-  gap: 24px;
+  grid-template-columns: 340px 1fr;
+  gap: 20px;
 }
 
 .customize-sidebar {
   display: grid;
-  gap: 20px;
+  background: #fff;
+  padding: 10px;
 }
 
 .settings-card,
 .panel-detail-card {
   background: #ffffff;
-  border: 1px solid #e8ebf3;
-  border-radius: 24px;
-  padding: 24px;
+  padding: 18px 0px 18px 18px;
   display: grid;
+  height: fit-content;
   gap: 16px;
 }
 
 .settings-card-header h2,
 .panel-detail-card h3 {
   margin: 0;
-  font-size: 1.3rem;
+  font-size: 1.5rem;
 }
 
 .settings-card-body {
@@ -2152,9 +2134,10 @@ a {
   align-items: center;
   justify-content: space-between;
   padding: 16px 18px;
-  border-radius: 18px;
+  border-radius: 6px;
   border: 1px solid transparent;
   background: #f8f9ff;
+  font-size: 16px;
   color: #1e2642;
   font-weight: 600;
   cursor: pointer;
@@ -2177,6 +2160,7 @@ a {
 .widget-preview-panel {
   display: grid;
   gap: 18px;
+  height: fit-content;
 }
 
 .widget-preview-bar {
@@ -2349,10 +2333,6 @@ a {
   margin-top: 12px;
 }
 
-.widget-preview-panel {
-  display: grid;
-  gap: 18px;
-}
 
 .widget-preview-top {
   display: flex;
@@ -2369,20 +2349,7 @@ a {
   padding: 6px;
 }
 
-.toggle-button {
-  border: none;
-  background: transparent;
-  color: #5f6d84;
-  padding: 10px 16px;
-  border-radius: 999px;
-  cursor: pointer;
-}
 
-.toggle-button.active {
-  background: #ffffff;
-  box-shadow: inset 0 0 0 1px #d6d9e8;
-  color: #23284d;
-}
 
 .widget-preview-card {
   display: grid;
@@ -2752,7 +2719,6 @@ a {
   gap: 16px;
   padding: 20px 24px;
   border-radius: 20px;
-  margin-bottom: 24px;
   border: 1px solid transparent;
 }
 
