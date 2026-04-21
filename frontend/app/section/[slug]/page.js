@@ -196,7 +196,7 @@ function TranslationsLayout() {
           </div>
           <button className="btn">Sync All Languages</button>
         </div>
-        
+
         <div className="grid" style={{ gap: "24px", marginTop: "32px" }}>
           {[
             { label: "AI Recommendation Title", value: "Smart Picks for You" },
@@ -218,8 +218,8 @@ function TranslationsLayout() {
 function OfferLayout() {
   return (
     <div className="page-section">
-      <div className="surface" style={{ 
-        background: "linear-gradient(135deg, #2d1b4e 0%, #452779 100%)", 
+      <div className="surface" style={{
+        background: "linear-gradient(135deg, #2d1b4e 0%, #452779 100%)",
         color: "white",
         position: "relative",
         overflow: "hidden"
@@ -236,7 +236,7 @@ function OfferLayout() {
           </div>
         </div>
       </div>
-      
+
       <div className="grid" style={{ gridTemplateColumns: "1fr 1.5fr", gap: "24px" }}>
         <div className="surface" style={{ borderLeft: "4px solid #452779" }}>
           <span style={{ fontSize: "10px", fontWeight: "bold", color: "#452779" }}>NEW ALPHA</span>
@@ -260,14 +260,14 @@ function FlushCacheLayout() {
   return (
     <div className="page-section">
       <div className="surface" style={{ textAlign: "center", padding: "80px 20px" }}>
-        <div style={{ 
-          width: "120px", 
-          height: "120px", 
-          background: "#f0f4ff", 
-          borderRadius: "60px", 
-          display: "flex", 
-          alignItems: "center", 
-          justifyContent: "center", 
+        <div style={{
+          width: "120px",
+          height: "120px",
+          background: "#f0f4ff",
+          borderRadius: "60px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
           margin: "0 auto 32px",
           fontSize: "3rem"
         }}>⚡</div>
@@ -286,34 +286,63 @@ function FlushCacheLayout() {
 
 function AccountLayout() {
   return (
-    <div className="page-section">
-      <div className="surface">
+    <div className="page-section account-page">
+      <div className="surface account-panel">
+
+        {/* HEADER */}
         <div className="section-header">
           <h1>My Account</h1>
-          <span className="tag" style={{ background: "#e8f5e9", color: "#2e7d32" }}>Verified Store</span>
         </div>
-        <div style={{ marginTop: "32px", display: "grid", gap: "0" }}>
-          {[
-            { label: "Shop Name", value: "Future Tech AI Store" },
-            { label: "Store Domain", value: "ai-upsell-demo.myshopify.com" },
-            { label: "Active Plan", value: "AI Growth Tier ($29/mo)" },
-            { label: "Monthly AI Credits", value: "45,200 / 50,000 used" },
-            { label: "Connected Since", value: "Oct 12, 2025" }
-          ].map((item, idx) => (
-            <div key={item.label} style={{ 
-              display: "flex", 
-              justifyContent: "space-between", 
-              padding: "20px 0", 
-              borderBottom: idx === 4 ? "none" : "1px solid #f0f0f0" 
-            }}>
-              <strong style={{ color: "#5f6d84" }}>{item.label}</strong>
-              <span style={{ fontWeight: "600" }}>{item.value}</span>
+
+        <div className="account-grid">
+
+          {/* LEFT SIDE - PROFILE */}
+          <div className="account-left">
+            <h2>Profile Details</h2>
+
+            <div className="form-group">
+              <label>Store Name</label>
+              <input type="text" value="self-theme.myshopify.com" disabled />
             </div>
-          ))}
-        </div>
-        <div style={{ display: "flex", gap: "12px", marginTop: "32px" }}>
-          <button className="btn">Edit Profile</button>
-          <button className="btn secondary">Billing History</button>
+
+            <div className="form-group">
+              <label>Notification Email</label>
+              <input type="email" placeholder="Add your Notification Email here" />
+              <p className="helper-text">
+                This email will be used for all updates.
+              </p>
+            </div>
+
+            <div className="form-group">
+              <label>Phone Number</label>
+              <input type="text" placeholder="Enter phone number" />
+            </div>
+
+            <div className="form-group">
+              <label>Store Owner</label>
+              <input type="text" value="Avi Choudhary" disabled />
+            </div>
+          </div>
+
+          {/* RIGHT SIDE - PLAN CARD */}
+          <div className="account-right">
+            <div className="plan-card">
+              <div className="plan-badge-corner">
+                <span>★</span>
+              </div>
+
+              <h3>PREMIUM</h3>
+
+              <p>App Install Date</p>
+              <strong>2026-04-17</strong>
+
+              <div className="divider"></div>
+
+              <p>Authenticated Capped Amount</p>
+              <strong>$</strong>
+            </div>
+          </div>
+
         </div>
       </div>
     </div>
@@ -322,7 +351,7 @@ function AccountLayout() {
 
 function FaqsLayout() {
   const [activeTab, setActiveTab] = useState("General");
-  
+
   const faqs = {
     General: [
       { q: "How does the AI choose which products to recommend?", a: "Our AI engine analyzes customer browsing patterns, historical purchase data, and product attributes (like tags, types, and descriptions) to find the highest-probability cross-sell matches." },
@@ -346,13 +375,13 @@ function FaqsLayout() {
         <div className="section-header" style={{ marginBottom: "32px" }}>
           <h1>Everything you need to know</h1>
         </div>
-        
+
         <div style={{ display: "flex", gap: "12px", marginBottom: "40px", borderBottom: "1px solid #f0f0f0", paddingBottom: "16px" }}>
           {Object.keys(faqs).map(tab => (
-            <button 
-              key={tab} 
+            <button
+              key={tab}
               onClick={() => setActiveTab(tab)}
-              style={{ 
+              style={{
                 background: activeTab === tab ? "#452779" : "transparent",
                 color: activeTab === tab ? "white" : "#5f6d84",
                 border: "none",
@@ -379,7 +408,7 @@ function FaqsLayout() {
             </div>
           ))}
         </div>
-        
+
         <div className="surface" style={{ marginTop: "48px", textAlign: "center", background: "#f0f4ff", border: "none" }}>
           <h3>Still have questions?</h3>
           <p className="small" style={{ marginBottom: "20px" }}>Our AI support bot is available 24/7, or you can talk to a human expert.</p>
@@ -406,11 +435,11 @@ function IntegrationsLayout() {
           <button className="btn secondary">Developer Settings</button>
         </div>
         <p className="small" style={{ marginBottom: "32px" }}>Connect your favorite tools to supercharge your AI engine.</p>
-        
+
         <div className="grid" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(350px, 1fr))", gap: "20px" }}>
           {apps.map(app => (
-            <div key={app.name} className="surface" style={{ 
-              display: "flex", 
+            <div key={app.name} className="surface" style={{
+              display: "flex",
               flexDirection: "column",
               gap: "20px",
               border: app.active ? "1px solid #d0e0ff" : "1px solid #f0f0f0",
@@ -473,9 +502,6 @@ function ExcludeProductsPage() {
             <span className="overline">Exclude Products</span>
             <h1>Exclude products that should not be part of the widgets.</h1>
           </div>
-          <div className="exclude-help">
-            <p>Choose a filter and add products by collection, product name, or SKU.</p>
-          </div>
         </div>
 
         <div className="exclude-form">
@@ -501,7 +527,7 @@ function ExcludeProductsPage() {
               onChange={(event) => setQuery(event.target.value)}
               placeholder={`Enter ${selectionLabel}`}
               className="text-input"
-                />
+            />
           </div>
 
           <button type="button" className="btn add-button" onClick={addExcludedProduct}>

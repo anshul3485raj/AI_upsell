@@ -2,11 +2,13 @@
 
 import { useState } from "react";
 import { useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import OfferForm from "../../components/OfferForm";
 import { useAuthenticatedFetch } from "../../hooks/useAuthenticatedFetch";
 
 export default function CreateOfferPage() {
   const { apiFetch, isReady } = useAuthenticatedFetch();
+  const router = useRouter();
   const searchParams = useSearchParams();
   const triggerType = searchParams.get("trigger") || "PRODUCT";
   const widgetName = searchParams.get("widget") || "";
@@ -25,6 +27,7 @@ export default function CreateOfferPage() {
         body: JSON.stringify(payload),
       });
       setMessage("Upsell rule created successfully.");
+      setTimeout(() => router.push("/dashboard"), 1500);
     } catch (err) {
       setError(err.message || "Failed to create upsell rule.");
     }

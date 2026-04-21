@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useAuthenticatedFetch } from "../../hooks/useAuthenticatedFetch";
+import KpiCard from "../../components/KpiCard";
 
 const widgetItems = [
   { slug: "product-page", title: "Product Page", icon: "🏷️", help: "Product page upsells", target: "/create-offer?trigger=PRODUCT&widget=Product+Page" },
@@ -22,44 +23,53 @@ export default function DashboardPage() {
   const [error, setError] = useState("");
   const [shop, setShop] = useState(null);
   const [rules, setRules] = useState([]);
+  const [summary, setSummary] = useState({ sales: 0, impressions: 0, conversions: 0, clicks: 0 });
+
+  const loadData = async () => {
+    if (!isReady) return;
+    setLoading(true);
+    setError("");
+    try {
+      const [shopData, ruleData, summaryData] = await Promise.all([
+        apiFetch("/shop/me"),
+        apiFetch("/upsell/rules"),
+        apiFetch("/analytics/summary?days=30"),
+      ]);
+      setShop(shopData);
+      setRules(ruleData);
+      setSummary(summaryData || { sales: 0, impressions: 0, conversions: 0, clicks: 0 });
+    } catch (err) {
+      setError(err.message || "Unable to load dashboard.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    if (!isReady) {
-      return;
-    }
-
-    let active = true;
-
-    const load = async () => {
-      setLoading(true);
-      setError("");
-      try {
-        const [shopData, ruleData] = await Promise.all([
-          apiFetch("/shop/me"),
-          apiFetch("/upsell/rules"),
-        ]);
-        if (!active) {
-          return;
-        }
-        setShop(shopData);
-        setRules(ruleData);
-      } catch (err) {
-        if (!active) {
-          return;
-        }
-        setError(err.message || "Unable to load dashboard.");
-      } finally {
-        if (active) {
-          setLoading(false);
-        }
-      }
-    };
-
-    load();
-    return () => {
-      active = false;
-    };
+    loadData();
   }, [apiFetch, isReady]);
+
+  const toggleRule = async (id, currentStatus) => {
+    try {
+      await apiFetch(`/upsell/rules/${id}`, {
+        method: "PATCH",
+        body: JSON.stringify({ isActive: !currentStatus }),
+      });
+      loadData();
+    } catch (err) {
+      alert("Failed to update rule status.");
+    }
+  };
+
+  const deleteRule = async (id) => {
+    if (!confirm("Are you sure you want to delete this rule?")) return;
+    try {
+      await apiFetch(`/upsell/rules/${id}`, { method: "DELETE" });
+      loadData();
+    } catch (err) {
+      alert("Failed to delete rule.");
+    }
+  };
 
   const counts = useMemo(() => {
     return {
@@ -69,46 +79,51 @@ export default function DashboardPage() {
     };
   }, [rules]);
 
+  const goalAmount = 10000; // Static target for now
+  const progressPercent = Math.min((summary.sales / goalAmount) * 100, 100);
+
   return (
     <div className="dashboard-page">
       <section className="surface hero-panel">
         <div className="hero-copy">
-          <div className="hero-badge">New</div>
-          <h1>30-Day Goal with Thank You Page Upsells</h1>
+          <div className="hero-badge">30-Day Goal</div>
+          <h1>Sales Performance</h1>
           <p className="hero-text">
-            Boost extra revenue right after checkout on Thankyou Page. Customers are most engaged
-            post-purchase—enable Thank You Page Upsells to get repeat sales.
+            Track your revenue generated through AI-powered upsells and cross-sells.
           </p>
 
           <div className="goal-grid">
             <div>
-              <div className="overline">Goal amount so far</div>
-              <div className="hero-value">₹0.00</div>
+              <div className="overline">Sales Generated</div>
+              <div className="hero-value">₹{summary.sales.toLocaleString()}</div>
             </div>
-            <div>
-              <div className="overline">Target</div>
-              <div className="hero-value">₹50</div>
+            <div style={{ flex: 1 }}>
+              <div className="overline">Goal Progress (Target: ₹{goalAmount.toLocaleString()})</div>
+              <div className="progress-bar-bg">
+                <div className="progress-bar-fill" style={{ width: `${progressPercent}%` }} />
+              </div>
             </div>
           </div>
-
-          <button className="btn">Activate Now</button>
         </div>
 
         <div className="hero-side">
           <div className="surface plan-card">
-            <div className="overline">Subscription Plan</div>
-            <div className="plan-name">Basic Free</div>
-            <p className="small">You are currently on the Basic Free plan.</p>
-            <div className="plan-stats">
-              <div>
-                <div className="overline">Order Count</div>
-                <div className="hero-value">0</div>
-              </div>
-            </div>
-            <button className="btn secondary">View Details</button>
+            <div className="overline">Connected Store</div>
+            <div className="plan-name">{shop?.domain || "Loading..."}</div>
+            <p className="small">Plan: {shop?.plan || "Basic Free"}</p>
+            <Link href="/analytics" className="btn secondary" style={{ marginTop: 12 }}>View Detailed Analytics</Link>
           </div>
         </div>
       </section>
+
+      <div className="analytics-kpi-grid" style={{ marginBottom: 24 }}>
+        <KpiCard title="Impressions" value={summary.impressions.toLocaleString()} subtitle="Views on widgets" />
+        <KpiCard title="Clicks" value={summary.clicks.toLocaleString()} subtitle="Engagement" />
+        <KpiCard title="Conversions" value={summary.conversions.toLocaleString()} subtitle="Orders with upsells" />
+        <KpiCard title="Conversion Rate" 
+                 value={`${summary.impressions > 0 ? ((summary.conversions / summary.impressions) * 100).toFixed(1) : 0}%`} 
+                 subtitle="Impressions to Orders" />
+      </div>
 
       <section className="surface setup-card">
         <div className="section-header">
@@ -145,7 +160,7 @@ export default function DashboardPage() {
 
                 <div className="widget-actions">
                   <Link href={widget.target} className="button-link">
-                    Edit
+                    {enabled ? "Manage" : "Setup"}
                   </Link>
                 </div>
               </div>
@@ -154,30 +169,10 @@ export default function DashboardPage() {
         </div>
       </section>
 
-      <section className="dashboard-grid">
-        <div className="surface info-card">
-          <div className="section-header">
-            <h2>Store Status</h2>
-          </div>
-          <p className="small">
-            {shop ? `Connected shop: ${shop.domain}` : "Connect your store via Shopify install flow."}
-          </p>
-          <div className="status-grid">
-            <div className="status-item">
-              <span>Active Rules</span>
-              <strong>{counts.activeRules}</strong>
-            </div>
-            <div className="status-item">
-              <span>Total Rules</span>
-              <strong>{rules.length}</strong>
-            </div>
-          </div>
-        </div>
-      </section>
-
       <section className="surface rules-panel">
         <div className="section-header">
           <h2>Active Upsell Rules</h2>
+          <Link href="/create-offer" className="button-link">+ Create New Rule</Link>
         </div>
         {loading ? <p className="small">Loading rules...</p> : null}
         {error ? <p className="small error-text">{error}</p> : null}
@@ -187,9 +182,8 @@ export default function DashboardPage() {
               <tr>
                 <th>Name</th>
                 <th>Trigger</th>
-                <th>Source Product</th>
-                <th>Source Tag</th>
                 <th>Status</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -198,14 +192,30 @@ export default function DashboardPage() {
                   <tr key={rule.id}>
                     <td>{rule.name}</td>
                     <td>{rule.triggerType}</td>
-                    <td>{rule.sourceProductId || "-"}</td>
-                    <td>{rule.sourceTag || "-"}</td>
-                    <td>{rule.isActive ? "Active" : "Paused"}</td>
+                    <td>
+                      <button 
+                        className={`status-pill ${rule.isActive ? "active" : "inactive"}`}
+                        onClick={() => toggleRule(rule.id, rule.isActive)}
+                      >
+                        {rule.isActive ? "Active" : "Paused"}
+                      </button>
+                    </td>
+                    <td>
+                      <div className="row" style={{ gap: 8 }}>
+                        <Link href={`/edit-offer/${rule.id}`} className="button-link small">Edit</Link>
+                        <button 
+                          className="button-link small error-text" 
+                          onClick={() => deleteRule(rule.id)}
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan={5} className="small">
+                  <td colSpan={4} className="small">
                     No rules yet. Create one in the Create Offer page.
                   </td>
                 </tr>
