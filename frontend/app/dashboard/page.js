@@ -25,6 +25,9 @@ export default function DashboardPage() {
   const [rules, setRules] = useState([]);
   const [summary, setSummary] = useState({ sales: 0, impressions: 0, conversions: 0, clicks: 0 });
 
+  const [activeWidget, setActiveWidget] = useState(null);
+  const [widgetSettings, setWidgetSettings] = useState({});
+
   const loadData = async () => {
     if (!isReady) return;
     setLoading(true);
@@ -71,6 +74,21 @@ export default function DashboardPage() {
     }
   };
 
+  const updateWidget = (key, field, value) => {
+    setWidgetSettings((prev) => ({
+      ...prev,
+      [key]: {
+        ...prev[key],
+        [field]: value,
+      },
+    }));
+  };
+
+  const saveWidgetSettings = () => {
+    console.log("Saving widget settings:", widgetSettings);
+    alert("Saved (connect API later)");
+  };
+
   const counts = useMemo(() => {
     return {
       productRules: rules.filter((rule) => rule.triggerType === "PRODUCT" && rule.isActive).length,
@@ -79,151 +97,195 @@ export default function DashboardPage() {
     };
   }, [rules]);
 
-  const goalAmount = 10000; // Static target for now
+  const goalAmount = 10000;
   const progressPercent = Math.min((summary.sales / goalAmount) * 100, 100);
 
   return (
     <div className="dashboard-page">
-      <section className="surface hero-panel">
-        <div className="hero-copy">
-          <div className="hero-badge">30-Day Goal</div>
-          <h1>Sales Performance</h1>
-          <p className="hero-text">
-            Track your revenue generated through AI-powered upsells and cross-sells.
-          </p>
 
-          <div className="goal-grid">
-            <div>
-              <div className="overline">Sales Generated</div>
-              <div className="hero-value">₹{summary.sales.toLocaleString()}</div>
+      {/* SETTINGS PANEL */}
+      {activeWidget ? (
+        <div className="widget-settings-panel">
+          <div className="settings-header">
+            <h2>Widgets For {activeWidget.replaceAll("-", " ")}</h2>
+
+            <div style={{ display: "flex", gap: 10 }}>
+              <button onClick={() => setActiveWidget(null)} className="btn secondary">Back</button>
+              <button onClick={saveWidgetSettings} className="btn primary">Save</button>
             </div>
-            <div style={{ flex: 1 }}>
-              <div className="overline">Goal Progress (Target: ₹{goalAmount.toLocaleString()})</div>
+          </div>
+
+          <div className="settings-grid">
+            {[
+              "Frequently Bought",
+              "Handpicked Recommendations",
+              "Related Products",
+              "Inspired by User's Browsing History",
+              "Recently Viewed Products",
+              "Top Selling Products",
+              "New Arrivals",
+              "Trending Products",
+              "Featured Products",
+            ].map((item, index) => {
+              const key = `${activeWidget}_${index}`;
+
+              return (
+                <div key={key} className="settings-card">
+                  <div className="settings-card-header">
+                    <h4>{item}</h4>
+
+                    <label className="switch">
+                      <input
+                        type="checkbox"
+                        checked={widgetSettings[key]?.enabled || false}
+                        onChange={(e) =>
+                          updateWidget(key, "enabled", e.target.checked)
+                        }
+                      />
+                      <span className="slider"></span>
+                    </label>
+                  </div>
+
+                  <div className="settings-body">
+                    <label>Widget Title</label>
+                    <input
+                      type="text"
+                      value={widgetSettings[key]?.title || item}
+                      onChange={(e) =>
+                        updateWidget(key, "title", e.target.value)
+                      }
+                    />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      ) : (
+        <>
+          {/* HERO */}
+          <section className="surface hero-panel upgraded-hero">
+            <div className="hero-copy">
+              <div className="hero-badge">🔥 New</div>
+              <h2>30-Day Goal with Thank You Page Upsells</h2>
+              <p>Boost extra revenue right after checkout</p>
+
               <div className="progress-bar-bg">
                 <div className="progress-bar-fill" style={{ width: `${progressPercent}%` }} />
               </div>
-            </div>
-          </div>
-        </div>
 
-        <div className="hero-side">
-          <div className="surface plan-card">
-            <div className="overline">Connected Store</div>
-            <div className="plan-name">{shop?.domain || "Loading..."}</div>
-            <p className="small">Plan: {shop?.plan || "Basic Free"}</p>
-            <Link href="/analytics" className="btn secondary" style={{ marginTop: 12 }}>View Detailed Analytics</Link>
-          </div>
-        </div>
-      </section>
-
-      <div className="analytics-kpi-grid" style={{ marginBottom: 24 }}>
-        <KpiCard title="Impressions" value={summary.impressions.toLocaleString()} subtitle="Views on widgets" />
-        <KpiCard title="Clicks" value={summary.clicks.toLocaleString()} subtitle="Engagement" />
-        <KpiCard title="Conversions" value={summary.conversions.toLocaleString()} subtitle="Orders with upsells" />
-        <KpiCard title="Conversion Rate" 
-                 value={`${summary.impressions > 0 ? ((summary.conversions / summary.impressions) * 100).toFixed(1) : 0}%`} 
-                 subtitle="Impressions to Orders" />
-      </div>
-
-      <section className="surface setup-card">
-        <div className="section-header">
-          <h2>Setup Widgets</h2>
-        </div>
-
-        <div className="widget-grid">
-          {widgetItems.map((widget) => {
-            const isProduct = widget.slug === "product-page";
-            const isCart = widget.slug === "cart-page";
-            const enabled = isProduct
-              ? counts.productRules > 0
-              : isCart
-              ? counts.cartRules > 0
-              : false;
-            const statusLabel = isProduct || isCart ? (enabled ? "Enabled" : "Disabled") : "Coming soon";
-
-            return (
-              <div key={widget.slug} className="widget-box">
-                <div className="widget-header">
-                  <div className="widget-icon">{widget.icon}</div>
-                  <div>
-                    <div className="widget-title">{widget.title}</div>
-                    <div className="widget-subtitle">{widget.help}</div>
-                  </div>
-                </div>
-
-                <div className="widget-body">
-                  <div className="widget-price">₹0.00</div>
-                  <div className={`widget-status-pill ${enabled ? "active" : "inactive"}`}>
-                    {statusLabel}
-                  </div>
-                </div>
-
-                <div className="widget-actions">
-                  <Link href={widget.target} className="button-link">
-                    {enabled ? "Manage" : "Setup"}
-                  </Link>
-                </div>
+              <div className="goal-row">
+                <span>₹{summary.sales}</span>
+                <span>Target ₹{goalAmount}</span>
               </div>
-            );
-          })}
-        </div>
-      </section>
+            </div>
 
-      <section className="surface rules-panel">
-        <div className="section-header">
-          <h2>Active Upsell Rules</h2>
-          <Link href="/create-offer" className="button-link">+ Create New Rule</Link>
-        </div>
-        {loading ? <p className="small">Loading rules...</p> : null}
-        {error ? <p className="small error-text">{error}</p> : null}
-        {!loading && !error ? (
-          <table className="table">
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Trigger</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rules.length ? (
-                rules.map((rule) => (
+            <div className="hero-side">
+              <div className="surface plan-card upgraded-plan">
+                <h4>Subscription Plan</h4>
+                <p>{shop?.plan || "Custom Plan"}</p>
+                <button className="btn secondary">View Details</button>
+              </div>
+            </div>
+          </section>
+
+          {/* KPIs */}
+          <div className="analytics-kpi-grid" style={{ marginBottom: 24 }}>
+            <KpiCard title="Impressions" value={summary.impressions.toLocaleString()} />
+            <KpiCard title="Clicks" value={summary.clicks.toLocaleString()} />
+            <KpiCard title="Conversions" value={summary.conversions.toLocaleString()} />
+          </div>
+
+          {/* SETUP WIDGETS */}
+          <section className="surface setup-card">
+            <div className="section-header">
+              <h2>Setup Widgets</h2>
+            </div>
+
+            <div className="widget-grid">
+              {widgetItems.map((widget) => (
+                <div key={widget.slug} className="widget-box">
+                  <div className="widget-header">
+                    <div className="widget-icon">{widget.icon}</div>
+                    <div>
+                      <div className="widget-title">{widget.title}</div>
+                      <div className="widget-subtitle">{widget.help}</div>
+                    </div>
+                  </div>
+
+                  <div className="widget-body">
+                    <div className="widget-price">₹0.00</div>
+                  </div>
+
+                  <div className="widget-actions">
+                    <button
+                      className="button-link"
+                      onClick={() => setActiveWidget(widget.slug)}
+                    >
+                      Edit
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* HELP SECTION */}
+          <section className="surface help-support">
+            <div className="section-header">
+              <h2>Help & Support</h2>
+            </div>
+
+            <div className="help-grid">
+              <div className="help-card">
+                <h4>Live Chat</h4>
+                <button className="btn primary">Chat Now</button>
+              </div>
+
+              <div className="help-card">
+                <h4>Schedule A Call</h4>
+                <button className="btn secondary">Book A Call</button>
+              </div>
+
+              <div className="help-card">
+                <h4>Help Center</h4>
+                <button className="btn secondary">Visit Here</button>
+              </div>
+
+              <div className="help-card">
+                <h4>Video Tutorials</h4>
+                <button className="btn secondary">Watch</button>
+              </div>
+            </div>
+          </section>
+
+          {/* RULES */}
+          <section className="surface rules-panel">
+            <div className="section-header">
+              <h2>Active Upsell Rules</h2>
+              <Link href="/create-offer" className="button-link">+ Create New Rule</Link>
+            </div>
+
+            <table className="table">
+              <tbody>
+                {rules.map((rule) => (
                   <tr key={rule.id}>
                     <td>{rule.name}</td>
-                    <td>{rule.triggerType}</td>
                     <td>
-                      <button 
-                        className={`status-pill ${rule.isActive ? "active" : "inactive"}`}
-                        onClick={() => toggleRule(rule.id, rule.isActive)}
-                      >
+                      <button onClick={() => toggleRule(rule.id, rule.isActive)}>
                         {rule.isActive ? "Active" : "Paused"}
                       </button>
                     </td>
                     <td>
-                      <div className="row" style={{ gap: 8 }}>
-                        <Link href={`/edit-offer/${rule.id}`} className="button-link small">Edit</Link>
-                        <button 
-                          className="button-link small error-text" 
-                          onClick={() => deleteRule(rule.id)}
-                        >
-                          Delete
-                        </button>
-                      </div>
+                      <button onClick={() => deleteRule(rule.id)}>Delete</button>
                     </td>
                   </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan={4} className="small">
-                    No rules yet. Create one in the Create Offer page.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        ) : null}
-      </section>
+                ))}
+              </tbody>
+            </table>
+          </section>
+        </>
+      )}
     </div>
   );
 }
