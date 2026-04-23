@@ -249,7 +249,7 @@ export default function DashboardPage() {
               <div className="help-card">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none"> <path d="M14.8644 12.3397L11.5366 12.9893C9.28971 11.8529 7.90088 10.5472 7.09295 8.51215L7.71506 5.15025L6.53952 2H3.50897C2.59763 2 1.88019 2.75867 2.01673 3.6663C2.35606 5.93171 3.35789 10.0401 6.28502 12.9893C9.36 16.0866 13.7875 17.4305 16.2242 17.9654C17.1654 18.1713 18 17.4322 18 16.461V13.5436L14.8644 12.3397Z" stroke="#411D57" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path> </svg>
                 <h4>Schedule A Call</h4>
-                <p>Talk to expert for personalized assistance</p>
+                <p>Talk to an Expert</p>
                 <button className="btn secondary">Book A Call</button>
               </div>
 

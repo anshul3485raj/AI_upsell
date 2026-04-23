@@ -1371,7 +1371,7 @@ width:100%;
   font-size: 15px;
   color: #2d0a3a;
   font-weight: 700;
-  background: #ff000052;
+  background: #ff000033;
   padding: 7px 14px;
   border-radius: 24px;
 }
@@ -2259,9 +2259,11 @@ input:checked + .slider:before {
 .analytics-kpi-grid {
   display: grid;
   gap: 18px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.dashboard-page .analytics-kpi-grid {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
-
 .analytics-chart-panel {
   display: grid;
   gap: 20px;
@@ -2524,7 +2526,8 @@ input:checked + .slider:before {
 .customize-sidebar {
   display: grid;
   background: #fff;
-  padding: 10px;
+  padding: 16px;
+  border-radius: 10px;
 }
 
 .settings-card,
@@ -2597,6 +2600,7 @@ input:checked + .slider:before {
 
 .settings-menu-item {
   width: 100%;
+  margin-top: 20px;
   display: flex;
   align-items: center;
   justify-content: space-between;
