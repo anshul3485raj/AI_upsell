@@ -42,6 +42,52 @@ a {
   gap: 24px;
 }
 
+.app-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 4px 4px 0;
+}
+
+.app-topbar-spacer {
+  flex: 1;
+}
+
+.app-language-select {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.app-language-select select {
+  min-width: 184px;
+  border: 1px solid #d8d9e6;
+  border-radius: 6px;
+  padding: 10px 38px 10px 14px;
+  background: #ffffff;
+  color: #1f1f1f;
+  font-size: 14px;
+}
+
+.google-translate-element {
+  position: absolute;
+  inset: auto auto auto -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+.goog-te-banner-frame.skiptranslate,
+.goog-logo-link,
+.goog-te-gadget span {
+  display: none !important;
+}
+
+body {
+  top: 0 !important;
+}
+
 .page-section {
   display: grid;
   gap: 24px;
@@ -2796,6 +2842,12 @@ input:checked + .slider:before {
   gap: 12px;
 }
 
+.related-top-banner-actions .btn,
+.related-top-banner-actions .button-link,
+.related-exclusion-footer .btn {
+  width: fit-content;
+}
+
 .related-layout {
   display: grid;
   grid-template-columns: minmax(280px, 1fr) minmax(520px, 1.05fr);
@@ -4685,6 +4737,15 @@ input:checked + .slider:before {
 @media (max-width: 768px) {
   .app-shell {
     padding: 14px 10px 26px;
+  }
+
+  .app-topbar {
+    padding-top: 0;
+  }
+
+  .app-language-select,
+  .app-language-select select {
+    width: 100%;
   }
 
   .hero-panel {

@@ -2,6 +2,7 @@ import "./globals.css";
 import { Suspense } from "react";
 import Providers from "./providers";
 import Navigation from "../components/Navigation";
+import GlobalLanguageSelector from "../components/GlobalLanguageSelector";
 
 export const metadata = {
   title: "AI Upsell Admin",
@@ -21,7 +22,13 @@ export default function RootLayout({ children }) {
                 <Navigation />
               </aside>
 
-              <main className="page-body">{children}</main>
+              <main className="page-body">
+                <div className="app-topbar">
+                  <div className="app-topbar-spacer" />
+                  <GlobalLanguageSelector />
+                </div>
+                {children}
+              </main>
             </div>
           </Providers>
         </Suspense>

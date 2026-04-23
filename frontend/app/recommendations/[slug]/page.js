@@ -547,24 +547,109 @@ export default function RecommendationPage({ params }) {
     );
   }
 
+  if (slug === "related-products") {
+    return (
+      <div className="page-section related-products-page">
+        <div className="related-top-banner">
+          <div>
+            <div className="related-top-banner-title">Mandatory Step</div>
+            <p className="related-top-banner-copy">Install widget to your theme.</p>
+          </div>
+          <div className="related-top-banner-actions">
+            <button className="btn" type="button">
+              Install Widget
+            </button>
+            <button className="button-link" type="button">
+              Setup Instructions
+            </button>
+          </div>
+        </div>
+
+        <div className="related-layout">
+          <div className="related-layout-copy">
+            <h2>Select Conditions</h2>
+            <p>
+              Select the conditions to show related products. You can choose any
+              of these conditions or all at once, priority will be decided as
+              per the order of conditions below.
+            </p>
+          </div>
+
+          <div className="related-settings-card">
+            <div className="related-toggle-list">
+              {conditions.map((condition) => (
+                <div
+                  key={condition.id}
+                  className={`related-toggle-row ${condition.enabled ? "enabled" : ""}`}
+                >
+                  <div className="related-toggle-label">
+                    <span className="related-grip" aria-hidden="true" />
+                    <strong>{condition.label}</strong>
+                  </div>
+                  <button
+                    type="button"
+                    className={`related-switch ${condition.enabled ? "active" : ""}`}
+                    onClick={() => handleToggleCondition(condition.id)}
+                    aria-pressed={condition.enabled}
+                    aria-label={`Toggle ${condition.label}`}
+                  >
+                    <span className="related-switch-thumb" />
+                  </button>
+                </div>
+              ))}
+            </div>
+
+            <div className="related-exclusion-panel">
+              <label htmlFor="related-exclude-values">
+                Exclude options (Only comma separated values)
+              </label>
+              <p className="small related-example-text">
+                You can exclude the particular collection(add only handle name),
+                vendor, tags &amp; product type, from which you do not want to
+                show products if you have assigned multiple collections or tags
+                in the products.
+              </p>
+              <p className="small related-example-text">
+                E.g. homepage, frontpage, best-sellers, all
+              </p>
+              <textarea
+                id="related-exclude-values"
+                className="textarea related-exclusion-input"
+                placeholder="E.g. homepage"
+                value={excludePagesText}
+                onChange={(event) => setExcludePagesText(event.target.value)}
+              />
+            </div>
+
+            <div className="related-exclusion-footer">
+              <div className="small">
+                Active conditions:{" "}
+                {conditions.filter((condition) => condition.enabled).length}
+              </div>
+              <button
+                className="btn related-save-button"
+                type="button"
+                onClick={handleSave}
+              >
+                Save
+              </button>
+            </div>
+
+            {saved ? (
+              <p className="small success-text">Settings saved successfully.</p>
+            ) : null}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="page-section">
       <div className="page-header-row">
         <div>
           <h1>{config.title}</h1>
           <p className="small">{config.description}</p>
-        </div>
-        <div className="language-select">
-          <label htmlFor="language">Select Language</label>
-          <select
-            id="language"
-            value={language}
-            onChange={(event) => setLanguage(event.target.value)}
-          >
-            <option>English</option>
-            <option>Spanish</option>
-            <option>French</option>
-          </select>
         </div>
       </div>
 

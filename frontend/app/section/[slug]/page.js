@@ -88,14 +88,6 @@ function HelpLayout() {
     <div className="page-section help-page">
       <div className="page-header-row help-page-header">
         <h1>Help Wiser</h1>
-        <label className="language-select help-language-select">
-          <select defaultValue="English">
-            <option value="English">Select Language</option>
-            <option value="English (US)">English (US)</option>
-            <option value="Hindi">Hindi</option>
-            <option value="French">French</option>
-          </select>
-        </label>
       </div>
 
       <div className="surface help-page-shell">
