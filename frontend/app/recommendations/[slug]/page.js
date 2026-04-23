@@ -874,13 +874,86 @@ export default function RecommendationPage({ params }) {
             </div>
           </div>
 
-          <div className="preview-card">
-            <h3 className="preview-heading">FREQUENTLY BOUGHT TOGETHER</h3>
+          <div
+            className={`preview-card ${previewMode === "mobile" ? "mobile-preview-mode" : ""}`}
+          >
+            {previewMode === "mobile" ? (
+              <div className="mobile-preview-shell">
+                <div className="mobile-preview-frame">
+                  <div className="mobile-preview-content">
+                    <h3 className="preview-heading mobile-preview-heading">
+                      FREQUENTLY BOUGHT TOGETHER
+                    </h3>
+
+                    <div className="mobile-preview-summary-card">
+                      <div className="product-stack mobile">
+                        {products.map((product, index) => (
+                          <div key={product.id} className="product-stack-entry">
+                            <div className="product-item">
+                              <img src={product.image} alt={product.title} />
+                            </div>
+                            {index < products.length - 1 ? (
+                              <span className="product-plus">+</span>
+                            ) : null}
+                          </div>
+                        ))}
+                      </div>
+
+                      <div className="mobile-total-block">
+                        <strong>Total price: &#8377;{totalPrice.toFixed(2)}</strong>
+                        <button
+                          type="button"
+                          className="add-to-cart mobile-add-to-cart"
+                        >
+                          Add to cart
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="mobile-product-list">
+                      {products.map((product) => (
+                        <div key={product.id} className="mobile-product-row">
+                          <div className="mobile-product-top">
+                            <label className="mobile-product-label">
+                              <input
+                                type="checkbox"
+                                checked={product.selected}
+                                onChange={() => handleToggleProduct(product.id)}
+                              />
+                              <strong>{product.title}</strong>
+                            </label>
+                            <select
+                              value={product.selectedVariant}
+                              onChange={(event) =>
+                                handleVariantChange(
+                                  product.id,
+                                  event.target.value,
+                                )
+                              }
+                            >
+                              {product.variantOptions.map((variant) => (
+                                <option key={variant} value={variant}>
+                                  {variant}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                          <div className="product-price">
+                            &#8377;{product.price.toFixed(2)}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : (
+
             <div className="fbt-preview-layout">
               <div className="fbt-preview-main">
-                <div
-                  className={`product-stack ${previewMode === "mobile" ? "mobile" : ""}`}
-                >
+                <h3 className="preview-heading">Frequently Bought Together</h3>
+
+                <div className="product-stack">
                   {products.map((product, index) => (
                     <div key={product.id} className="product-stack-entry">
                       <div className="product-item">
@@ -919,7 +992,7 @@ export default function RecommendationPage({ params }) {
                         ))}
                       </select>
                       <div className="product-price">
-                        ₹{product.price.toFixed(2)}
+                        &#8377;{product.price.toFixed(2)}
                       </div>
                     </div>
                   ))}
@@ -927,12 +1000,13 @@ export default function RecommendationPage({ params }) {
               </div>
 
               <div className="total-row total-row-sidebar">
-                <strong>Total price: ₹{totalPrice.toFixed(2)}</strong>
+                <strong>Total price: &#8377;{totalPrice.toFixed(2)}</strong>
                 <button type="button" className="add-to-cart">
                   Add to cart
                 </button>
               </div>
             </div>
+            )}
           </div>
         </div>
       </div>
