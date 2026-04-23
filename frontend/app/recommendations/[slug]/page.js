@@ -5,15 +5,18 @@ import { useMemo, useState } from "react";
 const pageConfig = {
   "frequently-bought-together": {
     title: "Frequently Bought Together",
-    description: "Show customers product bundles with a preview to increase average order value.",
+    description:
+      "Show customers product bundles with a preview to increase average order value.",
   },
   "handpicked-recommendations": {
     title: "Handpicked Recommendations",
-    description: "Choose products manually for focused recommendations on each product page.",
+    description:
+      "Choose products manually for focused recommendations on each product page.",
   },
   "related-products": {
     title: "Related Products",
-    description: "Surface similar products that customers are likely to buy next.",
+    description:
+      "Surface similar products that customers are likely to buy next.",
   },
   "post-purchase-upsell": {
     title: "Post Purchase Upsell",
@@ -27,21 +30,24 @@ const defaultProducts = [
     title: "Gift Card",
     variantOptions: ["$10", "$25", "$50"],
     price: 10,
-    image: "https://images.unsplash.com/photo-1512436991641-6745cdb1723f?auto=format&fit=crop&w=300&q=80",
+    image:
+      "https://images.unsplash.com/photo-1512436991641-6745cdb1723f?auto=format&fit=crop&w=300&q=80",
   },
   {
     id: "pearl-dusk",
     title: "Pearl Dusk",
     variantOptions: ["Default Tilt", "Rose Gold", "Ice"],
     price: 949.95,
-    image: "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?auto=format&fit=crop&w=300&q=80",
+    image:
+      "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?auto=format&fit=crop&w=300&q=80",
   },
   {
     id: "velvet-bloom",
     title: "Velvet Bloom",
     variantOptions: ["Ice", "Satin", "Noir"],
     price: 699.95,
-    image: "https://images.unsplash.com/photo-1512436991641-6745cdb1723f?auto=format&fit=crop&w=300&q=80",
+    image:
+      "https://images.unsplash.com/photo-1512436991641-6745cdb1723f?auto=format&fit=crop&w=300&q=80",
   },
 ];
 
@@ -51,35 +57,40 @@ const handpickedProducts = [
     title: "Rose Magic",
     vendor: "Wiser Labs",
     price: 1299.95,
-    image: "https://images.unsplash.com/photo-1490367532201-b9bc1dc483f6?auto=format&fit=crop&w=500&q=80",
+    image:
+      "https://images.unsplash.com/photo-1490367532201-b9bc1dc483f6?auto=format&fit=crop&w=500&q=80",
   },
   {
     id: "pearl-luxe",
     title: "Pearl Luxe",
     vendor: "Wiser Studios",
     price: 899.95,
-    image: "https://images.unsplash.com/photo-1524758631624-e2822e304c36?auto=format&fit=crop&w=500&q=80",
+    image:
+      "https://images.unsplash.com/photo-1524758631624-e2822e304c36?auto=format&fit=crop&w=500&q=80",
   },
   {
     id: "satin-glow",
     title: "Satin Glow",
     vendor: "Wiser Beauty",
     price: 749.95,
-    image: "https://images.unsplash.com/photo-1495121605193-b116b5b9c2d8?auto=format&fit=crop&w=500&q=80",
+    image:
+      "https://images.unsplash.com/photo-1495121605193-b116b5b9c2d8?auto=format&fit=crop&w=500&q=80",
   },
   {
     id: "amber-muse",
     title: "Amber Muse",
     vendor: "Studio Nine",
     price: 1050.0,
-    image: "https://images.unsplash.com/photo-1495121605193-b116b5b9c2d8?auto=format&fit=crop&w=500&q=80",
+    image:
+      "https://images.unsplash.com/photo-1495121605193-b116b5b9c2d8?auto=format&fit=crop&w=500&q=80",
   },
   {
     id: "velvet-kiss",
     title: "Velvet Kiss",
     vendor: "Elegance Co.",
     price: 799.0,
-    image: "https://images.unsplash.com/photo-1503602642458-232111445657?auto=format&fit=crop&w=500&q=80",
+    image:
+      "https://images.unsplash.com/photo-1503602642458-232111445657?auto=format&fit=crop&w=500&q=80",
   },
 ];
 
@@ -90,6 +101,16 @@ const relatedConditions = [
   { id: "same-vendor", label: "Same Vendor", enabled: false },
   { id: "same-tags", label: "Same Tags", enabled: false },
   { id: "ai-powered", label: "AI Powered", enabled: false },
+];
+
+const layoutOptions = ["Carousel", "Grid", "List"];
+const locationOptions = ["Product Page", "Cart Drawer", "Homepage"];
+const discountOptions = ["None", "5% OFF", "10% OFF", "Bundle Price"];
+const recommendationTypeOptions = [
+  { id: "ai-powered", label: "AI Powered" },
+  { id: "same-vendor", label: "Same Vendor" },
+  { id: "same-product-type", label: "Same Product Type" },
+  { id: "same-collection", label: "Same Collection" },
 ];
 
 export default function RecommendationPage({ params }) {
@@ -104,6 +125,7 @@ export default function RecommendationPage({ params }) {
   const [location, setLocation] = useState("Product Page");
   const [discount, setDiscount] = useState("None");
   const [previewMode, setPreviewMode] = useState("desktop");
+  const [activeSection, setActiveSection] = useState("recommendationType");
   const [saved, setSaved] = useState(false);
   const [products, setProducts] = useState(
     defaultProducts.map((product) => ({
@@ -116,13 +138,27 @@ export default function RecommendationPage({ params }) {
   const [selectedProduct, setSelectedProduct] = useState(handpickedProducts[0]);
   const [searchBy, setSearchBy] = useState("title");
   const [searchTerm, setSearchTerm] = useState("");
-  const [recommendations, setRecommendations] = useState(handpickedProducts.slice(1, 4));
+  const [recommendations, setRecommendations] = useState(
+    handpickedProducts.slice(1, 4),
+  );
+  const [genericRecommendationType, setGenericRecommendationType] = useState(
+    slug === "related-products" ? "Smart Rules" : "Manual Selection",
+  );
+  const [recommendationMode, setRecommendationMode] = useState("automated");
+  const [recommendationFilters, setRecommendationFilters] = useState([
+    "same-collection",
+  ]);
+  const [excludePagesText, setExcludePagesText] = useState("homepage");
+  const [manualRecommendationsEnabled, setManualRecommendationsEnabled] =
+    useState(false);
 
   const filteredProducts = useMemo(
     () =>
       handpickedProducts
         .filter((product) => product.id !== selectedProduct.id)
-        .filter((product) => !recommendations.some((item) => item.id === product.id))
+        .filter(
+          (product) => !recommendations.some((item) => item.id === product.id),
+        )
         .filter((product) =>
           product[searchBy].toLowerCase().includes(searchTerm.toLowerCase()),
         ),
@@ -130,14 +166,19 @@ export default function RecommendationPage({ params }) {
   );
 
   const totalPrice = useMemo(
-    () => products.filter((product) => product.selected).reduce((sum, product) => sum + product.price, 0),
+    () =>
+      products
+        .filter((product) => product.selected)
+        .reduce((sum, product) => sum + product.price, 0),
     [products],
   );
 
   const handleToggleProduct = (id) => {
     setProducts((current) =>
       current.map((product) =>
-        product.id === id ? { ...product, selected: !product.selected } : product,
+        product.id === id
+          ? { ...product, selected: !product.selected }
+          : product,
       ),
     );
   };
@@ -159,7 +200,11 @@ export default function RecommendationPage({ params }) {
   };
 
   const [conditions, setConditions] = useState(relatedConditions);
-  const [excludeValues, setExcludeValues] = useState({ collection: "", vendor: "", tags: "" });
+  const [excludeValues, setExcludeValues] = useState({
+    collection: "",
+    vendor: "",
+    tags: "",
+  });
   const [removeOutOfStock, setRemoveOutOfStock] = useState(false);
   const [funnels, setFunnels] = useState([]);
   const [archivedFunnels, setArchivedFunnels] = useState([]);
@@ -169,7 +214,9 @@ export default function RecommendationPage({ params }) {
   const handleToggleCondition = (id) => {
     setConditions((current) =>
       current.map((condition) =>
-        condition.id === id ? { ...condition, enabled: !condition.enabled } : condition,
+        condition.id === id
+          ? { ...condition, enabled: !condition.enabled }
+          : condition,
       ),
     );
   };
@@ -211,6 +258,18 @@ export default function RecommendationPage({ params }) {
     setShowArchived((current) => !current);
   };
 
+  const toggleSection = (section) => {
+    setActiveSection((current) => (current === section ? "" : section));
+  };
+
+  const handleRecommendationFilterToggle = (id) => {
+    setRecommendationFilters((current) =>
+      current.includes(id)
+        ? current.filter((item) => item !== id)
+        : [...current, id],
+    );
+  };
+
   const handleSave = () => {
     setSaved(true);
     window.setTimeout(() => setSaved(false), 3000);
@@ -224,10 +283,16 @@ export default function RecommendationPage({ params }) {
             <div>
               <strong>Action Required</strong>
               <p>
-                Please make sure to select "Wiser" in the Shopify Checkout Settings under the "Post Purchase page" section. This is a mandatory step.
+                Please make sure to select "Wiser" in the Shopify Checkout
+                Settings under the "Post Purchase page" section. This is a
+                mandatory step.
               </p>
             </div>
-            <button className="button-link" type="button" onClick={handleToggleAction}>
+            <button
+              className="button-link"
+              type="button"
+              onClick={handleToggleAction}
+            >
               Enable Setting
             </button>
           </div>
@@ -262,13 +327,22 @@ export default function RecommendationPage({ params }) {
             <div className="funnel-empty-illustration" />
             <h3>Create Your First Funnel</h3>
             <p className="small">
-              Start by creating a post-purchase funnel to show customers the right upsell offer after checkout.
+              Start by creating a post-purchase funnel to show customers the
+              right upsell offer after checkout.
             </p>
             <div className="funnel-empty-actions">
-              <button className="btn" type="button" onClick={handleCreateFunnel}>
+              <button
+                className="btn"
+                type="button"
+                onClick={handleCreateFunnel}
+              >
                 + Create Funnel
               </button>
-              <button className="button-link" type="button" onClick={handleToggleArchivedView}>
+              <button
+                className="button-link"
+                type="button"
+                onClick={handleToggleArchivedView}
+              >
                 View Archive Funnels
               </button>
             </div>
@@ -277,7 +351,11 @@ export default function RecommendationPage({ params }) {
           <div className="funnel-list-card">
             <div className="funnel-list-header">
               <span className="small muted">Manage your funnels below.</span>
-              <button className="button-link" type="button" onClick={handleCreateFunnel}>
+              <button
+                className="button-link"
+                type="button"
+                onClick={handleCreateFunnel}
+              >
                 + New Funnel
               </button>
             </div>
@@ -290,7 +368,11 @@ export default function RecommendationPage({ params }) {
                   </div>
                   <div className="funnel-row-actions">
                     <span className="pill">{funnel.status}</span>
-                    <button className="button-link small-button" type="button" onClick={() => handleArchiveFunnel(funnel.id)}>
+                    <button
+                      className="button-link small-button"
+                      type="button"
+                      onClick={() => handleArchiveFunnel(funnel.id)}
+                    >
                       Archive
                     </button>
                   </div>
@@ -304,7 +386,9 @@ export default function RecommendationPage({ params }) {
           <div className="funnel-archive-card">
             <div className="funnel-archive-header">
               <h3>Archived Funnels</h3>
-              <span className="small muted">{archivedFunnels.length} archived</span>
+              <span className="small muted">
+                {archivedFunnels.length} archived
+              </span>
             </div>
             <div className="funnel-list">
               {archivedFunnels.map((funnel) => (
@@ -329,7 +413,11 @@ export default function RecommendationPage({ params }) {
           <div>
             <strong>Mandatory Step</strong>
             <p>
-              Click <a href="#" className="notice-link">here</a> to add the app block for Online Store 2.0 theme.
+              Click{" "}
+              <a href="#" className="notice-link">
+                here
+              </a>{" "}
+              to add the app block for Online Store 2.0 theme.
             </p>
           </div>
           <button className="button-link">2.0 Setup Instructions</button>
@@ -341,7 +429,10 @@ export default function RecommendationPage({ params }) {
               <h2>Choose The Product</h2>
             </div>
             <p className="small">
-              Choose the product from the search box here to add handpicked recommended products in it. After selecting the product, you can search for products to be added in its recommended products section.
+              Choose the product from the search box here to add handpicked
+              recommended products in it. After selecting the product, you can
+              search for products to be added in its recommended products
+              section.
             </p>
 
             <div className="handpicked-search-row">
@@ -380,7 +471,9 @@ export default function RecommendationPage({ params }) {
                   </div>
                 ))
               ) : (
-                <p className="small">No products found. Try a different search term.</p>
+                <p className="small">
+                  No products found. Try a different search term.
+                </p>
               )}
             </div>
 
@@ -408,7 +501,9 @@ export default function RecommendationPage({ params }) {
               <div>
                 <h3>{selectedProduct.title}</h3>
                 <p className="small">{selectedProduct.vendor}</p>
-                <p className="product-price">₹{selectedProduct.price.toFixed(2)}</p>
+                <p className="product-price">
+                  ₹{selectedProduct.price.toFixed(2)}
+                </p>
               </div>
             </div>
 
@@ -419,7 +514,10 @@ export default function RecommendationPage({ params }) {
               </div>
               <div className="handpicked-recommendation-list">
                 {recommendations.map((product) => (
-                  <div key={product.id} className="handpicked-recommendation-item">
+                  <div
+                    key={product.id}
+                    className="handpicked-recommendation-item"
+                  >
                     <div className="handpicked-recommendation-info">
                       <img src={product.image} alt={product.title} />
                       <div>
@@ -428,7 +526,9 @@ export default function RecommendationPage({ params }) {
                       </div>
                     </div>
                     <div className="handpicked-recommendation-actions">
-                      <span className="product-price">₹{product.price.toFixed(2)}</span>
+                      <span className="product-price">
+                        ₹{product.price.toFixed(2)}
+                      </span>
                       <button
                         type="button"
                         className="button-link small-button"
@@ -456,7 +556,11 @@ export default function RecommendationPage({ params }) {
         </div>
         <div className="language-select">
           <label htmlFor="language">Select Language</label>
-          <select id="language" value={language} onChange={(event) => setLanguage(event.target.value)}>
+          <select
+            id="language"
+            value={language}
+            onChange={(event) => setLanguage(event.target.value)}
+          >
             <option>English</option>
             <option>Spanish</option>
             <option>French</option>
@@ -473,22 +577,269 @@ export default function RecommendationPage({ params }) {
             </button>
           </div>
 
-          <div className="settings-list">
-            <div className="setting-row">
-              <span>Recommendations Type</span>
-              <small>{slug === "frequently-bought-together" ? "Bundle" : "Manual"}</small>
+          <div className="settings-list recommendations-accordion">
+            <div className="accordion-card recommendation-accordion-card">
+              <button
+                type="button"
+                className={`accordion-header recommendation-accordion-header ${activeSection === "recommendationType" ? "open" : ""}`}
+                onClick={() => toggleSection("recommendationType")}
+                aria-expanded={activeSection === "recommendationType"}
+              >
+                <span>Recommendations Type</span>
+                <span
+                  className={`accordion-icon ${activeSection === "recommendationType" ? "open" : ""}`}
+                >
+                  &#8250;
+                </span>
+              </button>
+              {activeSection === "recommendationType" ? (
+                <div className="accordion-body recommendation-accordion-body">
+                  {slug === "frequently-bought-together" ? (
+                    <div className="fbt-recommendation-panel">
+                      <div className="fbt-mode-list">
+                        <label
+                          className={`fbt-radio-card disabled ${recommendationMode === "past-orders" ? "active" : ""}`}
+                        >
+                          <input
+                            type="radio"
+                            name="recommendationMode"
+                            value="past-orders"
+                            checked={recommendationMode === "past-orders"}
+                            onChange={() =>
+                              setRecommendationMode("past-orders")
+                            }
+                            disabled
+                          />
+                          <div>
+                            <span>Recommendations by Past Orders</span>
+                            <small>[Not Sufficient Orders to Process]</small>
+                          </div>
+                        </label>
+
+                        <label
+                          className={`fbt-radio-card ${recommendationMode === "automated" ? "active" : ""}`}
+                        >
+                          <input
+                            type="radio"
+                            name="recommendationMode"
+                            value="automated"
+                            checked={recommendationMode === "automated"}
+                            onChange={() => setRecommendationMode("automated")}
+                          />
+                          <div>
+                            <span>Automated Recommendations</span>
+                            <small>
+                              Let the widget choose products using your selected
+                              rules.
+                            </small>
+                          </div>
+                        </label>
+                      </div>
+
+                      <div className="fbt-field-group">
+                        <label className="fbt-section-label">
+                          Select Options
+                        </label>
+                        <div className="fbt-option-list">
+                          {recommendationTypeOptions.map((option) => (
+                            <label
+                              key={option.id}
+                              className={`fbt-option-row ${recommendationFilters.includes(option.id) ? "active" : ""}`}
+                            >
+                              <input
+                                type="checkbox"
+                                checked={recommendationFilters.includes(
+                                  option.id,
+                                )}
+                                onChange={() =>
+                                  handleRecommendationFilterToggle(option.id)
+                                }
+                              />
+                              <span>{option.label}</span>
+                            </label>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="fbt-field-group">
+                        <label
+                          className="fbt-section-label"
+                          htmlFor="exclude-pages"
+                        >
+                          Exclude options
+                        </label>
+                        <textarea
+                          id="exclude-pages"
+                          className="textarea fbt-textarea"
+                          placeholder="E.g. homepage"
+                          value={excludePagesText}
+                          onChange={(event) =>
+                            setExcludePagesText(event.target.value)
+                          }
+                        />
+                      </div>
+
+                      <label
+                        className={`fbt-radio-card ${manualRecommendationsEnabled ? "active" : ""}`}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={manualRecommendationsEnabled}
+                          onChange={() =>
+                            setManualRecommendationsEnabled(
+                              (current) => !current,
+                            )
+                          }
+                        />
+                        <div>
+                          <span>Handpicked Manual Recommendations</span>
+                          <small>
+                            Setup manual recommendations from Handpicked
+                            Recommendations option.
+                          </small>
+                        </div>
+                      </label>
+                    </div>
+                  ) : (
+                    <div className="accordion-body-stack">
+                      <p className="small">
+                        Choose how products should be recommended in this
+                        widget.
+                      </p>
+                      <div className="radio-list">
+                        {[
+                          "Manual Selection",
+                          "Smart Rules",
+                          "Recently Popular",
+                        ].map((option) => (
+                          <label key={option} className="radio-item">
+                            <input
+                              type="radio"
+                              name="genericRecommendationType"
+                              checked={genericRecommendationType === option}
+                              onChange={() =>
+                                setGenericRecommendationType(option)
+                              }
+                            />
+                            <span>{option}</span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : null}
             </div>
-            <div className="setting-row">
-              <span>Choose Layout</span>
-              <small>{layout}</small>
+
+            <div className="accordion-card recommendation-accordion-card">
+              <button
+                type="button"
+                className={`accordion-header recommendation-accordion-header ${activeSection === "layout" ? "open" : ""}`}
+                onClick={() => toggleSection("layout")}
+                aria-expanded={activeSection === "layout"}
+              >
+                <span>Choose Layout</span>
+                <span
+                  className={`accordion-icon ${activeSection === "layout" ? "open" : ""}`}
+                >
+                  &#8250;
+                </span>
+              </button>
+              {activeSection === "layout" ? (
+                <div className="accordion-body recommendation-accordion-body">
+                  <div className="radio-list layout-radio-list">
+                    {layoutOptions.map((option) => (
+                      <label
+                        key={option}
+                        className={`radio-item ${layout === option ? "active" : ""}`}
+                      >
+                        <input
+                          type="radio"
+                          name="layout"
+                          value={option}
+                          checked={layout === option}
+                          onChange={() => setLayout(option)}
+                        />
+                        <span>{option}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
             </div>
-            <div className="setting-row">
-              <span>Widget's Location</span>
-              <small>{location}</small>
+
+            <div className="accordion-card recommendation-accordion-card">
+              <button
+                type="button"
+                className={`accordion-header recommendation-accordion-header ${activeSection === "location" ? "open" : ""}`}
+                onClick={() => toggleSection("location")}
+                aria-expanded={activeSection === "location"}
+              >
+                <span>Widget&apos;s Location</span>
+                <span
+                  className={`accordion-icon ${activeSection === "location" ? "open" : ""}`}
+                >
+                  &#8250;
+                </span>
+              </button>
+              {activeSection === "location" ? (
+                <div className="accordion-body recommendation-accordion-body">
+                  <div className="radio-list">
+                    {locationOptions.map((option) => (
+                      <label
+                        key={option}
+                        className={`radio-item ${location === option ? "active" : ""}`}
+                      >
+                        <input
+                          type="radio"
+                          name="location"
+                          value={option}
+                          checked={location === option}
+                          onChange={() => setLocation(option)}
+                        />
+                        <span>{option}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
             </div>
-            <div className="setting-row">
-              <span>Discounts</span>
-              <small>{discount}</small>
+
+            <div className="accordion-card recommendation-accordion-card">
+              <button
+                type="button"
+                className={`accordion-header recommendation-accordion-header ${activeSection === "discount" ? "open" : ""}`}
+                onClick={() => toggleSection("discount")}
+                aria-expanded={activeSection === "discount"}
+              >
+                <span>Discounts</span>
+                <span
+                  className={`accordion-icon ${activeSection === "discount" ? "open" : ""}`}
+                >
+                  &#8250;
+                </span>
+              </button>
+              {activeSection === "discount" ? (
+                <div className="accordion-body recommendation-accordion-body">
+                  <div className="radio-list layout-radio-list">
+                    {discountOptions.map((option) => (
+                      <label
+                        key={option}
+                        className={`radio-item ${discount === option ? "active" : ""}`}
+                      >
+                        <input
+                          type="radio"
+                          name="discount"
+                          value={option}
+                          checked={discount === option}
+                          onChange={() => setDiscount(option)}
+                        />
+                        <span>{option}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
             </div>
           </div>
 
@@ -497,7 +848,9 @@ export default function RecommendationPage({ params }) {
               SAVE
             </button>
           </div>
-          {saved ? <p className="small success-text">Settings saved successfully.</p> : null}
+          {saved ? (
+            <p className="small success-text">Settings saved successfully.</p>
+          ) : null}
         </div>
 
         <div className="preview-panel">
@@ -523,46 +876,62 @@ export default function RecommendationPage({ params }) {
 
           <div className="preview-card">
             <h3 className="preview-heading">FREQUENTLY BOUGHT TOGETHER</h3>
-            <div className="product-stack">
-              {products.map((product, index) => (
-                <div key={product.id} className="product-item">
-                  <img src={product.image} alt={product.title} />
-                </div>
-              ))}
-            </div>
-
-            {products.map((product) => (
-              <div key={product.id} className="product-line">
-                <label>
-                  <input
-                    type="checkbox"
-                    checked={product.selected}
-                    onChange={() => handleToggleProduct(product.id)}
-                  />
-                  <div className="product-details">
-                    <strong>{product.title}</strong>
-                    <small>{product.selectedVariant}</small>
-                  </div>
-                </label>
-                <select
-                  value={product.selectedVariant}
-                  onChange={(event) => handleVariantChange(product.id, event.target.value)}
+            <div className="fbt-preview-layout">
+              <div className="fbt-preview-main">
+                <div
+                  className={`product-stack ${previewMode === "mobile" ? "mobile" : ""}`}
                 >
-                  {product.variantOptions.map((variant) => (
-                    <option key={variant} value={variant}>
-                      {variant}
-                    </option>
+                  {products.map((product, index) => (
+                    <div key={product.id} className="product-stack-entry">
+                      <div className="product-item">
+                        <img src={product.image} alt={product.title} />
+                      </div>
+                      {index < products.length - 1 ? (
+                        <span className="product-plus">+</span>
+                      ) : null}
+                    </div>
                   ))}
-                </select>
-                <div className="product-price">₹{product.price.toFixed(2)}</div>
-              </div>
-            ))}
+                </div>
 
-            <div className="total-row">
-              <strong>Total price: ₹{totalPrice.toFixed(2)}</strong>
-              <button type="button" className="add-to-cart">
-                Add to cart
-              </button>
+                <div className="fbt-lines">
+                  {products.map((product) => (
+                    <div key={product.id} className="product-line">
+                      <label>
+                        <input
+                          type="checkbox"
+                          checked={product.selected}
+                          onChange={() => handleToggleProduct(product.id)}
+                        />
+                        <div className="product-details">
+                          <strong>{product.title}</strong>
+                        </div>
+                      </label>
+                      <select
+                        value={product.selectedVariant}
+                        onChange={(event) =>
+                          handleVariantChange(product.id, event.target.value)
+                        }
+                      >
+                        {product.variantOptions.map((variant) => (
+                          <option key={variant} value={variant}>
+                            {variant}
+                          </option>
+                        ))}
+                      </select>
+                      <div className="product-price">
+                        ₹{product.price.toFixed(2)}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="total-row total-row-sidebar">
+                <strong>Total price: ₹{totalPrice.toFixed(2)}</strong>
+                <button type="button" className="add-to-cart">
+                  Add to cart
+                </button>
+              </div>
             </div>
           </div>
         </div>
