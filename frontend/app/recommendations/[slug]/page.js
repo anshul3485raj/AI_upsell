@@ -210,6 +210,14 @@ export default function RecommendationPage({ params }) {
   const [archivedFunnels, setArchivedFunnels] = useState([]);
   const [actionEnabled, setActionEnabled] = useState(false);
   const [showArchived, setShowArchived] = useState(false);
+  const [isCreatingFunnel, setIsCreatingFunnel] = useState(false);
+  const [funnelStep, setFunnelStep] = useState("conditions");
+  const [funnelDraft, setFunnelDraft] = useState({
+    name: "",
+    allCustomers: false,
+    chooseProducts: false,
+    chooseCollections: false,
+  });
 
   const handleToggleCondition = (id) => {
     setConditions((current) =>
@@ -234,15 +242,14 @@ export default function RecommendationPage({ params }) {
   };
 
   const handleCreateFunnel = () => {
-    setFunnels((current) => [
-      ...current,
-      {
-        id: `funnel-${current.length + 1}`,
-        name: `Funnel ${current.length + 1}`,
-        status: "Draft",
-        createdAt: new Date().toLocaleDateString(),
-      },
-    ]);
+    setIsCreatingFunnel(true);
+    setFunnelStep("conditions");
+    setFunnelDraft({
+      name: `Funnel ${funnels.length + 1}`,
+      allCustomers: false,
+      chooseProducts: false,
+      chooseCollections: false,
+    });
   };
 
   const handleArchiveFunnel = (id) => {
@@ -256,6 +263,38 @@ export default function RecommendationPage({ params }) {
 
   const handleToggleArchivedView = () => {
     setShowArchived((current) => !current);
+  };
+
+  const handleFunnelDraftChange = (field, value) => {
+    setFunnelDraft((current) => ({ ...current, [field]: value }));
+  };
+
+  const handleSaveFunnelConditions = () => {
+    setFunnels((current) => {
+      const draftName = funnelDraft.name.trim() || `Funnel ${current.length + 1}`;
+      const existingIndex = current.findIndex(
+        (funnel) => funnel.name === draftName && funnel.status === "Draft",
+      );
+
+      const nextFunnel = {
+        id:
+          existingIndex >= 0
+            ? current[existingIndex].id
+            : `funnel-${current.length + 1}`,
+        name: draftName,
+        status: "Draft",
+        createdAt: new Date().toLocaleDateString(),
+      };
+
+      if (existingIndex >= 0) {
+        return current.map((funnel, index) =>
+          index === existingIndex ? nextFunnel : funnel,
+        );
+      }
+
+      return [...current, nextFunnel];
+    });
+    setFunnelStep("products");
   };
 
   const toggleSection = (section) => {
@@ -322,7 +361,238 @@ export default function RecommendationPage({ params }) {
           </div>
         </div>
 
-        {funnels.length === 0 ? (
+        {isCreatingFunnel ? (
+          <div className="funnel-builder-card">
+            <div className="funnel-builder-header">
+              <div className="funnel-builder-title-group">
+                <h2>New Funnel</h2>
+                <span className="funnel-status-pill">Unpublished</span>
+              </div>
+              <div className="funnel-builder-actions">
+                <button
+                  className="btn"
+                  type="button"
+                  onClick={() => setIsCreatingFunnel(false)}
+                >
+                  Check All Funnels
+                </button>
+              </div>
+            </div>
+
+            <div className="funnel-builder-tabs">
+              <button
+                type="button"
+                className={`funnel-builder-tab ${funnelStep === "conditions" ? "active" : ""}`}
+                onClick={() => setFunnelStep("conditions")}
+              >
+                Select Conditions
+              </button>
+              <button
+                type="button"
+                className={`funnel-builder-tab ${funnelStep === "products" ? "active" : ""}`}
+                onClick={() => setFunnelStep("products")}
+              >
+                Select Products to Upsell
+              </button>
+            </div>
+
+            {funnelStep === "conditions" ? (
+              <div className="funnel-builder-body">
+                <div className="funnel-field-block">
+                  <label htmlFor="funnel-name">Add Funnel Name</label>
+                  <input
+                    id="funnel-name"
+                    className="input"
+                    type="text"
+                    placeholder="Funnel Name"
+                    value={funnelDraft.name}
+                    onChange={(event) =>
+                      handleFunnelDraftChange("name", event.target.value)
+                    }
+                  />
+                </div>
+
+                <div className="funnel-field-block">
+                  <h3>Select Conditions</h3>
+                  <p className="small">
+                    Select the conditions below for the offer you want to show
+                    to your customers.
+                  </p>
+                  <label
+                    className={`funnel-condition-card ${funnelDraft.allCustomers ? "selected" : ""}`}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={funnelDraft.allCustomers}
+                      onChange={(event) =>
+                        handleFunnelDraftChange(
+                          "allCustomers",
+                          event.target.checked,
+                        )
+                      }
+                    />
+                    <span>Show This Funnel For All Customers</span>
+                  </label>
+                </div>
+
+                <div className="funnel-or-divider">
+                  <span>OR</span>
+                </div>
+
+                <div className="funnel-condition-grid">
+                  <label
+                    className={`funnel-condition-card ${funnelDraft.chooseProducts ? "selected" : ""}`}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={funnelDraft.chooseProducts}
+                      onChange={(event) =>
+                        handleFunnelDraftChange(
+                          "chooseProducts",
+                          event.target.checked,
+                        )
+                      }
+                    />
+                    <span>Choose Products</span>
+                  </label>
+
+                  <label
+                    className={`funnel-condition-card ${funnelDraft.chooseCollections ? "selected" : ""}`}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={funnelDraft.chooseCollections}
+                      onChange={(event) =>
+                        handleFunnelDraftChange(
+                          "chooseCollections",
+                          event.target.checked,
+                        )
+                      }
+                    />
+                    <span>Choose Collections</span>
+                  </label>
+                </div>
+
+                <div className="funnel-builder-actions">
+                  <button
+                    className="btn"
+                    type="button"
+                    onClick={handleSaveFunnelConditions}
+                  >
+                    Save &amp; Next
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="funnel-builder-body">
+                <div className="funnel-products-toolbar">
+                  <div>
+                    <h3>Select Products to Upsell</h3>
+                    <p className="small">
+                      Choose products that should appear in this post-purchase
+                      funnel.
+                    </p>
+                  </div>
+                  <input
+                    className="input funnel-search-input"
+                    type="text"
+                    placeholder="Search products"
+                    value={searchTerm}
+                    onChange={(event) => setSearchTerm(event.target.value)}
+                  />
+                </div>
+
+                <div className="funnel-products-layout">
+                  <div className="funnel-product-catalog">
+                    {handpickedProducts
+                      .filter((product) =>
+                        product.title
+                          .toLowerCase()
+                          .includes(searchTerm.toLowerCase()),
+                      )
+                      .map((product) => {
+                        const isSelected = recommendations.some(
+                          (item) => item.id === product.id,
+                        );
+
+                        return (
+                          <div
+                            key={product.id}
+                            className={`funnel-product-card ${isSelected ? "selected" : ""}`}
+                          >
+                            <img src={product.image} alt={product.title} />
+                            <div className="funnel-product-info">
+                              <strong>{product.title}</strong>
+                              <span>{product.vendor}</span>
+                              <small>&#8377;{product.price.toFixed(2)}</small>
+                            </div>
+                            <button
+                              type="button"
+                              className="button-link"
+                              onClick={() =>
+                                isSelected
+                                  ? handleRemoveRecommendation(product.id)
+                                  : handleAddRecommendation(product)
+                              }
+                            >
+                              {isSelected ? "Remove" : "Add"}
+                            </button>
+                          </div>
+                        );
+                      })}
+                  </div>
+
+                  <div className="funnel-selection-summary">
+                    <div className="funnel-summary-card">
+                      <h4>{funnelDraft.name || "New Funnel"}</h4>
+                      <div className="funnel-summary-line">
+                        <span>Status</span>
+                        <strong>Unpublished</strong>
+                      </div>
+                      <div className="funnel-summary-line">
+                        <span>Conditions</span>
+                        <strong>
+                          {[
+                            funnelDraft.allCustomers && "All Customers",
+                            funnelDraft.chooseProducts && "Products",
+                            funnelDraft.chooseCollections && "Collections",
+                          ]
+                            .filter(Boolean)
+                            .join(", ") || "None"}
+                        </strong>
+                      </div>
+                    </div>
+
+                    <div className="funnel-summary-card">
+                      <h4>Selected Products</h4>
+                      <div className="funnel-summary-products">
+                        {recommendations.map((product) => (
+                          <div
+                            key={product.id}
+                            className="funnel-summary-product"
+                          >
+                            <img src={product.image} alt={product.title} />
+                            <div>
+                              <strong>{product.title}</strong>
+                              <span>&#8377;{product.price.toFixed(2)}</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <p className="small funnel-builder-message">
+                  Your funnel conditions are saved. Now select the products you
+                  want to upsell after checkout.
+                </p>
+              </div>
+            )}
+          </div>
+        ) : null}
+
+        {!isCreatingFunnel && funnels.length === 0 ? (
           <div className="funnel-empty-card">
             <div className="funnel-empty-illustration" />
             <h3>Create Your First Funnel</h3>
@@ -347,7 +617,9 @@ export default function RecommendationPage({ params }) {
               </button>
             </div>
           </div>
-        ) : (
+        ) : null}
+
+        {!isCreatingFunnel && funnels.length > 0 ? (
           <div className="funnel-list-card">
             <div className="funnel-list-header">
               <span className="small muted">Manage your funnels below.</span>
@@ -380,9 +652,9 @@ export default function RecommendationPage({ params }) {
               ))}
             </div>
           </div>
-        )}
+        ) : null}
 
-        {showArchived && archivedFunnels.length > 0 ? (
+        {!isCreatingFunnel && showArchived && archivedFunnels.length > 0 ? (
           <div className="funnel-archive-card">
             <div className="funnel-archive-header">
               <h3>Archived Funnels</h3>

@@ -178,33 +178,230 @@ function HelpKnowledgeIcon() {
 }
 
 function TranslationsLayout() {
-  return (
-    <div className="page-section">
-      <div className="surface">
-        <div className="section-header">
-          <div>
-            <h1>Global AI Localization</h1>
-            <p className="small">Our AI automatically detects your customer's language, but you can override labels here.</p>
-          </div>
-          <button className="btn">Sync All Languages</button>
-        </div>
+  const translationLanguages = [
+    "Chinese (Traditional)",
+    "Chinese (Simplified)",
+    "Dutch",
+    "English",
+    "Filipino",
+    "French",
+    "German",
+    "Hindi",
+    "Italian",
+    "Japanese",
+    "Korean",
+    "Portuguese (Brazil)",
+    "Romanian",
+    "Russian",
+    "Spanish",
+    "Turkish",
+  ];
 
-        <div className="grid" style={{ gap: "24px", marginTop: "32px" }}>
-          {[
-            { label: "AI Recommendation Title", value: "Smart Picks for You" },
-            { label: "Cart Upsell Heading", value: "Frequently Bought Together" },
-            { label: "AI Bundle Discount Text", value: "Save with this AI-curated bundle" },
-            { label: "No Recommendations Message", value: "More products coming soon!" }
-          ].map(item => (
-            <div key={item.label} className="input-group">
-              <label style={{ fontWeight: "700", marginBottom: "8px", display: "block", color: "#452779" }}>{item.label}</label>
-              <input type="text" defaultValue={item.value} className="text-input" />
-            </div>
-          ))}
-        </div>
+  const defaultTranslationFields = [
+    { key: "frequentlyBoughtHeading", label: "Frequently Bought Heading", value: "Frequently Bought Together" },
+    { key: "manualRecommendationsHeading", label: "Manual Recommendations Heading", value: "Personalized Recommendations" },
+    { key: "relatedProductsHeading", label: "Related Products Heading", value: "Related Products" },
+    { key: "recentlyViewedProductsHeading", label: "Recently Viewed Products Heading", value: "Recently Viewed Products" },
+    { key: "newArrivalsHeading", label: "New Arrivals Heading", value: "New Arrivals" },
+    { key: "aiBasedRecommendationsHeading", label: "AI Based Recommendations Heading", value: "Inspired By Your Views" },
+    { key: "aiPoweredRecommendations", label: "AI Powered Recommendations", value: "Add Title" },
+    { key: "featuredProductsHeading", label: "Featured Products Heading", value: "Featured Products" },
+    { key: "topSellingProductsHeading", label: "Top Selling Products Heading", value: "Top Selling Products" },
+    { key: "trendingProductsHeading", label: "Trending Products Heading", value: "Trending Products" },
+    { key: "recentPurchasedProductsHeading", label: "Recent Purchased Products Heading", value: "Recent Purchased Products" },
+    { key: "recentPurchasedRecommendationsHeading", label: "Recent Purchased Based Recommendations Heading", value: "Recent Purchased Based Recommendations" },
+    { key: "addToCartButtonText", label: "Add To Cart Button Text", value: "Add to Cart" },
+    { key: "addedToCartConfirmation", label: "Add to cart (Confirmation)", value: "Added to cart!" },
+    { key: "viewCartText", label: "View cart Text", value: "View cart" },
+    { key: "orText", label: "Or Text", value: "or" },
+    { key: "continueShoppingText", label: "Continue shopping Text", value: "Continue shopping." },
+    { key: "productOutOfStock", label: "Product is out of stock", value: "Product is out of stock." },
+    { key: "soldOutText", label: "Sold Out", value: "Sold Out" },
+    { key: "frequentlyBoughtTogetherTotal", label: "Frequently Bought Together Total", value: "Total Price" },
+    { key: "thisItemText", label: "This item", value: "This item:" },
+    { key: "selectVariantText", label: "Select a variant", value: "Select a variant" },
+    { key: "chooseOptionText", label: "Choose option", value: "Choose option" },
+    { key: "addonHeading", label: "Addon Heading", value: "Add Addon Heading" },
+    { key: "popupHeading", label: "Popup Heading", value: "You may also like" },
+    { key: "popupAddToCart", label: "Popup Add to Cart", value: "Add to cart" },
+    { key: "descriptionText", label: "Description", value: "Description" },
+    { key: "quantityText", label: "Quantity", value: "Quantity" },
+    { key: "checkoutAddButton", label: "Checkout \"Add\" Button", value: "Add" },
+    { key: "fixedProductsText", label: "Fixed Products", value: "Recommended For You" },
+  ];
+
+  const [selectedLanguage, setSelectedLanguage] = useState("Chinese (Traditional)");
+  const [saved, setSaved] = useState(false);
+  const [fields, setFields] = useState(defaultTranslationFields);
+  const [extraSections, setExtraSections] = useState([
+{
+key:"customized_message",
+label:"Customized message",
+open:false
+},
+{
+key:"cart_drawer_text",
+label:"Cart Drawer Text",
+open:false
+},
+{
+key:"intelli_search_filter",
+label:"Customized message for Intelli Search Filter",
+open:false
+}
+]);
+
+  const updateFieldValue = (key, value) => {
+    setFields((current) =>
+      current.map((field) => (field.key === key ? { ...field, value } : field)),
+    );
+  };
+
+  const handleResetTranslations = () => {
+    setFields(defaultTranslationFields);
+    setSaved(false);
+  };
+
+  const handleAddMoreField = () => {
+    const nextIndex = fields.length + 1;
+    setFields((current) => [
+      ...current,
+      {
+        key: `customField${nextIndex}`,
+        label: `Custom Translation ${nextIndex}`,
+        value: "",
+      },
+    ]);
+  };
+
+  const handleToggleExtraSection = (key) => {
+    setExtraSections((current) =>
+      current.map((section) =>
+        section.key === key ? { ...section, open: !section.open } : section,
+      ),
+    );
+  };
+
+const handleSaveTranslations = () => {
+  setSaved(true);
+  window.setTimeout(() => setSaved(false), 2500);
+};
+
+return (
+  <div className="page-section translations-page">
+    <div className="translations-header-row">
+      <div>
+        <h1>Translations</h1>
+      </div>
+
+      <div className="translations-header-actions">
+        <button
+          className="button-link"
+          type="button"
+          onClick={handleResetTranslations}
+        >
+          Reset Translation
+        </button>
+
+        <button
+          className="btn btn-primary"
+          type="button"
+          onClick={handleAddMoreField}
+        >
+          Add More
+        </button>
       </div>
     </div>
-  );
+
+    <div className="surface translations-shell">
+
+      <div className="translations-toolbar">
+        <select
+          className="select translations-language-select"
+          value={selectedLanguage}
+          onChange={(event) => setSelectedLanguage(event.target.value)}
+        >
+          {translationLanguages.map((language) => (
+            <option key={language} value={language}>
+              {language}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <div className="translations-grid">
+        {fields.map((field) => (
+          <div key={field.key} className="translations-field">
+            <label htmlFor={field.key}>
+              {field.label}
+            </label>
+
+            <input
+              id={field.key}
+              type="text"
+              className="text-input"
+              value={field.value}
+              onChange={(event) =>
+                updateFieldValue(field.key, event.target.value)
+              }
+            />
+          </div>
+        ))}
+      </div>
+
+      <div className="translations-accordion-list">
+        {extraSections.map((section) => (
+          <div key={section.key} className="translations-accordion-item">
+
+            <button
+              type="button"
+              className="translations-accordion-trigger"
+              onClick={() => handleToggleExtraSection(section.key)}
+            >
+              <span>{section.label}</span>
+
+              <span
+                className={`translations-chevron ${
+                  section.open ? "open" : ""
+                }`}
+              >
+                &#8250;
+              </span>
+            </button>
+
+            {section.open && (
+              <div className="translations-accordion-body">
+                <textarea
+                  className="textarea"
+                  rows={4}
+                  placeholder={`Add ${section.label.toLowerCase()}`}
+                />
+              </div>
+            )}
+
+          </div>
+        ))}
+      </div>
+
+      <div className="translations-footer">
+        <button
+          className="btn btn-primary"
+          type="button"
+          onClick={handleSaveTranslations}
+        >
+          Save Changes
+        </button>
+
+        {saved && (
+          <p className="small success-text">
+            Translations saved successfully.
+          </p>
+        )}
+      </div>
+
+    </div>
+  </div>
+);
 }
 
 function OfferLayout() {
