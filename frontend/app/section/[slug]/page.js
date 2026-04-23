@@ -234,22 +234,10 @@ function TranslationsLayout() {
   const [saved, setSaved] = useState(false);
   const [fields, setFields] = useState(defaultTranslationFields);
   const [extraSections, setExtraSections] = useState([
-{
-key:"customized_message",
-label:"Customized message",
-open:false
-},
-{
-key:"cart_drawer_text",
-label:"Cart Drawer Text",
-open:false
-},
-{
-key:"intelli_search_filter",
-label:"Customized message for Intelli Search Filter",
-open:false
-}
-]);
+    { key: "customized-message", label: "Customized message", open: false },
+    { key: "cart-drawer-text", label: "Cart Drawer Text", open: false },
+    { key: "intelli-search-filter", label: "Customized message for Intelli Search Filter", open: false },
+  ]);
 
   const updateFieldValue = (key, value) => {
     setFields((current) =>
@@ -282,126 +270,98 @@ open:false
     );
   };
 
-const handleSaveTranslations = () => {
-  setSaved(true);
-  window.setTimeout(() => setSaved(false), 2500);
-};
+  const handleSaveTranslations = () => {
+    setSaved(true);
+    window.setTimeout(() => setSaved(false), 2500);
+  };
 
-return (
-  <div className="page-section translations-page">
-    <div className="translations-header-row">
-      <div>
-        <h1>Translations</h1>
+  return (
+    <div className="page-section translations-page">
+      <div className="translations-header-row">
+        <div>
+          <h1>Translations</h1>
+        </div>
+        <div className="translations-header-actions">
+          <button
+            className="button-link"
+            type="button"
+            onClick={handleResetTranslations}
+          >
+            Reset Translation
+          </button>
+          <button className="btn" type="button" onClick={handleAddMoreField}>
+            Add More
+          </button>
+        </div>
       </div>
 
-      <div className="translations-header-actions">
-        <button
-          className="button-link"
-          type="button"
-          onClick={handleResetTranslations}
-        >
-          Reset Translation
-        </button>
+      <div className="surface translations-shell">
+        <div className="translations-toolbar">
+          <select
+            className="select translations-language-select"
+            value={selectedLanguage}
+            onChange={(event) => setSelectedLanguage(event.target.value)}
+          >
+            {translationLanguages.map((language) => (
+              <option key={language} value={language}>
+                {language}
+              </option>
+            ))}
+          </select>
+        </div>
 
-        <button
-          className="btn btn-primary"
-          type="button"
-          onClick={handleAddMoreField}
-        >
-          Add More
-        </button>
-      </div>
-    </div>
-
-    <div className="surface translations-shell">
-
-      <div className="translations-toolbar">
-        <select
-          className="select translations-language-select"
-          value={selectedLanguage}
-          onChange={(event) => setSelectedLanguage(event.target.value)}
-        >
-          {translationLanguages.map((language) => (
-            <option key={language} value={language}>
-              {language}
-            </option>
+        <div className="translations-grid">
+          {fields.map((field) => (
+            <div key={field.key} className="translations-field">
+              <label htmlFor={field.key}>{field.label}</label>
+              <input
+                id={field.key}
+                type="text"
+                className="text-input"
+                value={field.value}
+                onChange={(event) => updateFieldValue(field.key, event.target.value)}
+              />
+            </div>
           ))}
-        </select>
-      </div>
+        </div>
 
-      <div className="translations-grid">
-        {fields.map((field) => (
-          <div key={field.key} className="translations-field">
-            <label htmlFor={field.key}>
-              {field.label}
-            </label>
-
-            <input
-              id={field.key}
-              type="text"
-              className="text-input"
-              value={field.value}
-              onChange={(event) =>
-                updateFieldValue(field.key, event.target.value)
-              }
-            />
-          </div>
-        ))}
-      </div>
-
-      <div className="translations-accordion-list">
-        {extraSections.map((section) => (
-          <div key={section.key} className="translations-accordion-item">
-
-            <button
-              type="button"
-              className="translations-accordion-trigger"
-              onClick={() => handleToggleExtraSection(section.key)}
-            >
-              <span>{section.label}</span>
-
-              <span
-                className={`translations-chevron ${
-                  section.open ? "open" : ""
-                }`}
+        <div className="translations-accordion-list">
+          {extraSections.map((section) => (
+            <div key={section.key} className="translations-accordion-item">
+              <button
+                type="button"
+                className="translations-accordion-trigger"
+                onClick={() => handleToggleExtraSection(section.key)}
               >
-                &#8250;
-              </span>
-            </button>
+                <span>{section.label}</span>
+                <span className={`translations-chevron ${section.open ? "open" : ""}`}>
+                  &#8250;
+                </span>
+              </button>
+              {section.open ? (
+                <div className="translations-accordion-body">
+                  <textarea
+                    className="textarea"
+                    rows={4}
+                    placeholder={`Add ${section.label.toLowerCase()}`}
+                  />
+                </div>
+              ) : null}
+            </div>
+          ))}
+        </div>
 
-            {section.open && (
-              <div className="translations-accordion-body">
-                <textarea
-                  className="textarea"
-                  rows={4}
-                  placeholder={`Add ${section.label.toLowerCase()}`}
-                />
-              </div>
-            )}
-
-          </div>
-        ))}
+        <div className="translations-footer">
+          <button className="btn" type="button" onClick={handleSaveTranslations}>
+            Save
+          </button>
+          {saved ? (
+            <p className="small success-text">Translations saved successfully.</p>
+          ) : null}
+        </div>
       </div>
-
-      <div className="translations-footer">
-        <button
-          className="btn btn-primary"
-          type="button"
-          onClick={handleSaveTranslations}
-        >
-          Save Changes
-        </button>
-
-        {saved && (
-          <p className="small success-text">
-            Translations saved successfully.
-          </p>
-        )}
-      </div>
-
     </div>
-  </div>
-);
+  );
 }
 
 function OfferLayout() {

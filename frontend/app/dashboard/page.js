@@ -3,18 +3,30 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useAuthenticatedFetch } from "../../hooks/useAuthenticatedFetch";
+import { Sparkles } from "lucide-react";
 import KpiCard from "../../components/KpiCard";
+import {
+  Tag,
+  ShoppingCart,
+  CheckCircle,
+  Home,
+  Layers,
+  Search,
+  AlertCircle,
+  PenLine,
+  User,
+} from "lucide-react";
 
 const widgetItems = [
-  { slug: "product-page", title: "Product Page", icon: "🏷️", help: "Product page upsells", target: "/create-offer?trigger=PRODUCT&widget=Product+Page" },
-  { slug: "cart-page", title: "Cart Page", icon: "🛒", help: "Cart page upsells", target: "/create-offer?trigger=CART&widget=Cart+Page" },
-  { slug: "thankyou-page", title: "Thankyou Page", icon: "✅", help: "Thank you page upsells", target: "/section/thankyou-page" },
-  { slug: "home-page", title: "Home Page", icon: "🏠", help: "Homepage upsells", target: "/section/home-page" },
-  { slug: "collection-pages", title: "Collection Pages", icon: "📚", help: "Collection page upsells", target: "/section/collection-pages" },
-  { slug: "search-results-page", title: "Search Results Page", icon: "🔎", help: "Search page upsells", target: "/section/search-results-page" },
-  { slug: "404-page", title: "404 Not Found Page", icon: "🚫", help: "404 page upsells", target: "/section/404-page" },
-  { slug: "blog-posts", title: "Blog Posts or Other Pages", icon: "✍️", help: "Blog page upsells", target: "/section/blog-posts" },
-  { slug: "account-login", title: "Account/Login Page", icon: "👤", help: "Account page upsells", target: "/section/account-login" },
+  { slug: "product-page", title: "Product Page", icon: Tag, help: "Product page upsells", target: "/create-offer?trigger=PRODUCT&widget=Product+Page" },
+  { slug: "cart-page", title: "Cart Page", icon: ShoppingCart, help: "Cart page upsells", target: "/create-offer?trigger=CART&widget=Cart+Page" },
+  { slug: "thankyou-page", title: "Thankyou Page", icon: CheckCircle, help: "Thank you page upsells", target: "/section/thankyou-page" },
+  { slug: "home-page", title: "Home Page", icon: Home, help: "Homepage upsells", target: "/section/home-page" },
+  { slug: "collection-pages", title: "Collection Pages", icon: Layers, help: "Collection page upsells", target: "/section/collection-pages" },
+  { slug: "search-results-page", title: "Search Results Page", icon: Search, help: "Search page upsells", target: "/section/search-results-page" },
+  { slug: "404-page", title: "404 Not Found Page", icon: AlertCircle, help: "404 page upsells", target: "/section/404-page" },
+  { slug: "blog-posts", title: "Blog Posts or Other Pages", icon: PenLine, help: "Blog page upsells", target: "/section/blog-posts" },
+  { slug: "account-login", title: "Account/Login Page", icon: User, help: "Account page upsells", target: "/section/account-login" },
 ];
 
 export default function DashboardPage() {
@@ -166,7 +178,10 @@ export default function DashboardPage() {
           {/* HERO */}
           <section className="surface hero-panel upgraded-hero">
             <div className="hero-copy">
-              <div className="hero-badge">🔥 New</div>
+              <div className="hero-badge">
+                <Sparkles size={14} />
+                <span>New</span>
+              </div>
               <h2>30-Day Goal with Thank You Page Upsells</h2>
               <p>Boost extra revenue right after checkout</p>
 
@@ -205,30 +220,37 @@ export default function DashboardPage() {
             </div>
 
             <div className="widget-grid">
-              {widgetItems.map((widget) => (
-                <div key={widget.slug} className="widget-box">
-                  <div className="widget-header">
-                    <div className="widget-icon">{widget.icon}</div>
-                    <div>
-                      <div className="widget-title">{widget.title}</div>
-                      <div className="widget-subtitle">{widget.help}</div>
+              {widgetItems.map((widget) => {
+                const Icon = widget.icon;
+
+                return (
+                  <div key={widget.slug} className="widget-box">
+                    <div className="widget-header">
+                      <div className="widget-icon">
+                        <Icon size={20} />
+                      </div>
+
+                      <div>
+                        <div className="widget-title">{widget.title}</div>
+                        <div className="widget-subtitle">{widget.help}</div>
+                      </div>
+                    </div>
+
+                    <div className="widget-body">
+                      <div className="widget-price">₹0.00</div>
+                    </div>
+
+                    <div className="widget-actions">
+                      <button
+                        className="button-link"
+                        onClick={() => setActiveWidget(widget.slug)}
+                      >
+                        Edit
+                      </button>
                     </div>
                   </div>
-
-                  <div className="widget-body">
-                    <div className="widget-price">₹0.00</div>
-                  </div>
-
-                  <div className="widget-actions">
-                    <button
-                      className="button-link"
-                      onClick={() => setActiveWidget(widget.slug)}
-                    >
-                      Edit
-                    </button>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </section>
 
