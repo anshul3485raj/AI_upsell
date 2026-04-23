@@ -207,7 +207,7 @@ export default function DashboardPage() {
           </section>
 
           {/* KPIs */}
-          <div className="analytics-kpi-grid" style={{ marginBottom: 24 }}>
+          <div className="analytics-kpi-grid" >
             <KpiCard title="Impressions" value={summary.impressions.toLocaleString()} />
             <KpiCard title="Clicks" value={summary.clicks.toLocaleString()} />
             <KpiCard title="Conversions" value={summary.conversions.toLocaleString()} />

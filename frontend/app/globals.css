@@ -122,12 +122,12 @@ body {
 .nav a {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
   padding: 14px 16px;
   border-radius: 16px;
   color: #1b2d4e;
   font-weight: 600;
-  background: #f8faff;
+  background: #f4f6fc;
   transition:
     background 0.2s ease,
     color 0.2s ease;
@@ -189,7 +189,7 @@ body {
   width: 24px;
   min-width: 24px;
   text-align: center;
-  color: #6b7280;
+  color: #424242;
 }
 .active .nav-icon {
   color: #7c3aed; /* purple highlight */
@@ -1456,6 +1456,7 @@ select.select.translations-language-select {
 
 .surface button.btn.secondary {
   width: fit-content;
+  font-size: 16px;
 }
 
 .surface button.btn {
@@ -4503,6 +4504,7 @@ width:100%;
   justify-content: space-between;
   gap: 12px;
   align-items: center;
+  font-size: 14px;
   color: #4b2867;
 }
 
@@ -4616,6 +4618,7 @@ width:100%;
   display: flex;
   justify-content: flex-end;
   margin-top: 18px;
+  gap: 10px;
 }
 
 .preview-header {
@@ -4640,6 +4643,8 @@ width:100%;
   background: #ffffff;
   cursor: pointer;
   font-weight: 700;
+  box-shadow: none;
+  border: none;
 }
 
 .preview-tab.active {
@@ -4799,7 +4804,6 @@ width:100%;
 .mobile-preview-shell {
   display: flex;
   justify-content: center;
-  padding: 14px 0;
 }
 
 .mobile-preview-frame {
