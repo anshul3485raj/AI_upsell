@@ -88,8 +88,15 @@ export default function Navigation() {
     <nav className="nav">
       {links.map((link) => {
         const href = params ? `${link.href}?${params}` : link.href;
+        const hasActiveSubmenu = Boolean(
+          link.submenu?.some(
+            (sub) => pathname === sub.href || pathname.startsWith(sub.href + "/"),
+          ),
+        );
         const isParentActive =
-          pathname === link.href || pathname.startsWith(link.href + "/");
+          pathname === link.href ||
+          pathname.startsWith(link.href + "/") ||
+          hasActiveSubmenu;
 
         const Icon = link.icon;
 
