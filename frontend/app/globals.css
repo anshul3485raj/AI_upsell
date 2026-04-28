@@ -4,7 +4,12 @@
   --text: #13233b;
   --muted: #5f6d84;
   --accent: #005bd3;
-  --border: #dde5ef;
+  --border: #c7d3e3;
+  --border-strong: #b7c5d8;
+  --border-soft: #d6deea;
+  --shadow-soft: 0 10px 26px rgba(19, 35, 59, 0.06);
+  --shadow-card: 0 14px 34px rgba(19, 35, 59, 0.08);
+  --field-bg: #fbfcfe;
 }
 
 * {
@@ -199,7 +204,7 @@ body {
   border: 1px solid var(--border);
   border-radius: 14px;
   padding: 18px;
-  box-shadow: 0 8px 24px rgba(19, 35, 59, 0.06);
+  box-shadow: var(--shadow-soft);
 }
 
 .row {
@@ -216,6 +221,7 @@ body {
 .kpi-card {
   min-width: 190px;
   flex: 1;
+  border: 1px solid #B6B6B8;
 }
 
 .kpi-value {
@@ -741,6 +747,7 @@ select.select.translations-language-select {
   flex-direction: column;
   justify-content: space-evenly;
   align-items: flex-start;
+  border: 1px solid #B6B6B8;
 }
 
 /* PAGE */
@@ -2021,7 +2028,7 @@ select.select.translations-language-select {
   background: #fff;
   border-radius: 10px;
   padding: 16px;
-  border: 1px solid #e5e5e5;
+  border: 1px solid #c3c3c3;
 }
 
 .settings-card-header {
@@ -2125,7 +2132,7 @@ input:checked + .slider:before {
   justify-content: space-evenly;
   padding: 16px;
   border-radius: 10px;
-  border: 1px solid #e1e1e1;
+  border: 1px solid #B6B6B8;
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.04);
 }
 
@@ -2526,7 +2533,7 @@ width:100%;
 
 .widget-box {
   border-radius: 18px;
-  border: 1px solid #e6eaf3;
+  border: 1px solid #b6b6b6;
   padding: 20px;
   background: #fbfcff;
   display: grid;
@@ -5037,4 +5044,111 @@ width:100%;
   .hero-panel {
     padding: 20px;
   }
+}
+
+/* Global border polish */
+.sidebar,
+.surface,
+.kpi-card,
+.help-card,
+.settings-card,
+.panel-detail-card,
+.accordion-card,
+.preview-panel-card,
+.preview-top-card,
+.intelli-card,
+.addon-card,
+.analytics-header-card,
+.analytics-breakdown-card,
+.analytics-products-card,
+.related-settings-card,
+.funnel-header-card,
+.funnel-empty-card,
+.funnel-list-card,
+.funnel-archive-card,
+.funnel-builder-card,
+.checkout-option-card,
+.preview-offer-card,
+.order-status-preview-card,
+.order-status-item-card,
+.help-support-card,
+.help-app-card,
+.recommendation-accordion-card,
+.widget-preview-card,
+.product-card,
+.mobile-preview-summary-card,
+.total-row-sidebar,
+.quick-search-sidebar,
+.search-listing-sidebar,
+.search-settings-sidebar,
+.addons-sidebar,
+.customize-sidebar {
+  border-color: var(--border-strong) !important;
+  box-shadow: var(--shadow-soft);
+}
+
+.app-language-select select,
+.language-select select,
+.help-language-select select,
+.input,
+.select,
+.textarea,
+.text-input,
+.select-input,
+.small-input,
+.custom-css-input,
+.color-input,
+.form-group input,
+.settings-body input,
+.product-line select,
+.mobile-product-row select,
+.fbt-textarea,
+.related-exclusion-input {
+  border-color: var(--border-strong) !important;
+  background: var(--field-bg);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.table th,
+.table td,
+.intelli-table th,
+.intelli-table td,
+.mobile-product-list,
+.mobile-product-row,
+.help-support-card-head,
+.funnel-builder-card-head,
+.funnel-builder-card-footer,
+.translations-footer {
+  border-color: var(--border-soft) !important;
+}
+
+.nav a,
+.nav-submenu .subitem,
+.button-link,
+.preview-tab,
+.tab-btn,
+.radio-option,
+.fbt-radio-card,
+.checkout-option-card,
+.funnel-condition-card,
+.funnel-option-card {
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.nav a:hover,
+.nav a.active,
+.nav-submenu .subitem.active,
+.button-link.selected,
+.preview-tab.active,
+.tab-btn.active,
+.radio-option.selected,
+.fbt-radio-card.active,
+.checkout-option-card:hover,
+.funnel-condition-card.selected,
+.funnel-option-card.selected {
+  box-shadow: var(--shadow-card);
 }
