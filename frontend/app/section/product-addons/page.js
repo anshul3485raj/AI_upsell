@@ -49,6 +49,76 @@ const fallbackProducts = [
   },
 ];
 
+function PreviewModeButton({ active, label, onClick, children }) {
+  return (
+    <button
+      type="button"
+      className={`icon-button ${active ? "active" : ""}`}
+      onClick={onClick}
+      aria-label={label}
+      title={label}
+    >
+      {children}
+    </button>
+  );
+}
+
+function ProductAddonCard({
+  product,
+  titleColor,
+  showPrice,
+  priceColor,
+  showComparePrice,
+  comparePriceColor,
+  showVariant,
+  selectedPrice,
+  setSelectedPrice,
+  isGrid = false,
+  isMobile = false,
+}) {
+  return (
+    <div className={`addon-card ${isGrid ? "addon-card-grid" : ""} ${isMobile ? "addon-card-mobile" : ""}`}>
+      <label className="addon-check">
+        <input type="checkbox" />
+      </label>
+      <div
+        className="addon-image"
+        style={{ backgroundImage: `url(${product.featuredImageUrl})` }}
+      />
+      <div className="addon-card-body">
+        <div className="addon-card-row">
+          <strong style={{ color: titleColor }}>{product.title}</strong>
+          {showPrice ? (
+            <span className="addon-price" style={{ color: priceColor }}>
+              ${product.price?.toFixed(2) ?? "0.00"}
+            </span>
+          ) : null}
+        </div>
+        {showComparePrice && Number(product.discountPrice) > Number(product.price) ? (
+          <div className="compare-price" style={{ color: comparePriceColor }}>
+            <s>${product.discountPrice?.toFixed(2) ?? "0.00"}</s>
+          </div>
+        ) : null}
+        {showVariant ? (
+          <div className="addon-card-row addon-select-row">
+            <select
+              className="select small-select"
+              value={selectedPrice}
+              onChange={(event) => setSelectedPrice(event.target.value)}
+            >
+              {priceLabels.map((label) => (
+                <option key={label} value={label}>
+                  {label}
+                </option>
+              ))}
+            </select>
+          </div>
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
 export default function ProductAddonsPage() {
   const { apiFetch, isReady } = useAuthenticatedFetch();
   const [products, setProducts] = useState(fallbackProducts);
@@ -75,6 +145,7 @@ export default function ProductAddonsPage() {
   const [totalComparePriceColor, setTotalComparePriceColor] = useState("#FF5C5C");
   const [customCss, setCustomCss] = useState(".addon-card { border-color: #f5e7ff; }");
   const [activeSection, setActiveSection] = useState("");
+  const [previewMode, setPreviewMode] = useState("desktop");
 
   const toggleSection = (section) => {
     setActiveSection((current) => (current === section ? "" : section));
@@ -87,13 +158,14 @@ export default function ProductAddonsPage() {
       setLoading(true);
       setError("");
       try {
-        const data = await apiFetch(`/shop/products?limit=8`);
+        const data = await apiFetch("/shop/products?limit=8");
         if (Array.isArray(data) && data.length > 0) {
           setProducts(
             data.map((product) => ({
               id: product.id,
               title: product.title,
-              featuredImageUrl: product.featuredImageUrl || "https://via.placeholder.com/320?text=Product",
+              featuredImageUrl:
+                product.featuredImageUrl || "https://via.placeholder.com/320?text=Product",
               price: product.price ?? 0,
               discountPrice: product.price ?? 0,
             })),
@@ -119,6 +191,20 @@ export default function ProductAddonsPage() {
     [products, selectedTotalProducts],
   );
 
+  const totalPriceValue = useMemo(
+    () => previewProducts.reduce((sum, product) => sum + Number(product.price ?? 0), 0),
+    [previewProducts],
+  );
+
+  const comparePriceValue = useMemo(
+    () =>
+      previewProducts.reduce(
+        (sum, product) => sum + Number(product.discountPrice ?? product.price ?? 0),
+        0,
+      ),
+    [previewProducts],
+  );
+
   return (
     <div className="page-section product-addons-layout">
       <div className="surface section-header">
@@ -133,7 +219,9 @@ export default function ProductAddonsPage() {
           <div className="addons-panel">
             <div className="addons-panel-header">
               <h2>Addon Settings</h2>
-              <button type="button" className="btn secondary">Enable</button>
+              <button type="button" className="btn secondary">
+                Enable
+              </button>
             </div>
 
             <div className="product-addons-accordion">
@@ -144,13 +232,19 @@ export default function ProductAddonsPage() {
                   onClick={() => toggleSection("selectWidgets")}
                 >
                   <span>Select Widgets</span>
-                  <span className={`accordion-icon ${activeSection === "selectWidgets" ? "open" : ""}`}>&#8250;</span>
+                  <span className={`accordion-icon ${activeSection === "selectWidgets" ? "open" : ""}`}>
+                    &#8250;
+                  </span>
                 </button>
-                {activeSection === "selectWidgets" && (
+                {activeSection === "selectWidgets" ? (
                   <div className="accordion-body">
                     <label className="field-group">
                       <span>Choose a widget</span>
-                      <select className="select" value={selectedWidget} onChange={(event) => setSelectedWidget(event.target.value)}>
+                      <select
+                        className="select"
+                        value={selectedWidget}
+                        onChange={(event) => setSelectedWidget(event.target.value)}
+                      >
                         {widgetOptions.map((option) => (
                           <option key={option} value={option}>
                             {option}
@@ -173,7 +267,7 @@ export default function ProductAddonsPage() {
                       ))}
                     </div>
                   </div>
-                )}
+                ) : null}
               </div>
 
               <div className="accordion-card">
@@ -183,13 +277,18 @@ export default function ProductAddonsPage() {
                   onClick={() => toggleSection("chooseLayout")}
                 >
                   <span>Choose Layout</span>
-                  <span className={`accordion-icon ${activeSection === "chooseLayout" ? "open" : ""}`}>&#8250;</span>
+                  <span className={`accordion-icon ${activeSection === "chooseLayout" ? "open" : ""}`}>
+                    &#8250;
+                  </span>
                 </button>
-                {activeSection === "chooseLayout" && (
+                {activeSection === "chooseLayout" ? (
                   <div className="accordion-body">
                     <div className="radio-list layout-radio-list">
                       {layoutOptions.map((option) => (
-                        <label key={option} className={`radio-item ${selectedLayout === option ? "active" : ""}`}>
+                        <label
+                          key={option}
+                          className={`radio-item ${selectedLayout === option ? "active" : ""}`}
+                        >
                           <input
                             type="radio"
                             name="layoutDisplay"
@@ -203,7 +302,11 @@ export default function ProductAddonsPage() {
                     </div>
                     <label className="field-group">
                       <span>Total No. of Products</span>
-                      <select className="select" value={selectedTotalProducts} onChange={(event) => setSelectedTotalProducts(event.target.value)}>
+                      <select
+                        className="select"
+                        value={selectedTotalProducts}
+                        onChange={(event) => setSelectedTotalProducts(event.target.value)}
+                      >
                         {totalProductsOptions.map((option) => (
                           <option key={option} value={option}>
                             {option}
@@ -212,7 +315,7 @@ export default function ProductAddonsPage() {
                       </select>
                     </label>
                   </div>
-                )}
+                ) : null}
               </div>
 
               <div className="accordion-card">
@@ -222,9 +325,11 @@ export default function ProductAddonsPage() {
                   onClick={() => toggleSection("styling")}
                 >
                   <span>Styling</span>
-                  <span className={`accordion-icon ${activeSection === "styling" ? "open" : ""}`}>&#8250;</span>
+                  <span className={`accordion-icon ${activeSection === "styling" ? "open" : ""}`}>
+                    &#8250;
+                  </span>
                 </button>
-                {activeSection === "styling" && (
+                {activeSection === "styling" ? (
                   <div className="accordion-body">
                     <label className="field-group">
                       <span>Heading</span>
@@ -366,7 +471,7 @@ export default function ProductAddonsPage() {
                       />
                     </label>
                   </div>
-                )}
+                ) : null}
               </div>
 
               <div className="accordion-card">
@@ -376,9 +481,11 @@ export default function ProductAddonsPage() {
                   onClick={() => toggleSection("customCss")}
                 >
                   <span>Add Custom CSS</span>
-                  <span className={`accordion-icon ${activeSection === "customCss" ? "open" : ""}`}>&#8250;</span>
+                  <span className={`accordion-icon ${activeSection === "customCss" ? "open" : ""}`}>
+                    &#8250;
+                  </span>
                 </button>
-                {activeSection === "customCss" && (
+                {activeSection === "customCss" ? (
                   <div className="accordion-body">
                     <label className="field-group">
                       <span>Custom CSS</span>
@@ -390,11 +497,13 @@ export default function ProductAddonsPage() {
                       />
                     </label>
                   </div>
-                )}
+                ) : null}
               </div>
             </div>
 
-            <button type="button" className="btn save-btn">SAVE</button>
+            <button type="button" className="btn save-btn">
+              SAVE
+            </button>
           </div>
         </aside>
 
@@ -402,9 +511,28 @@ export default function ProductAddonsPage() {
           <div className="addons-preview-header">
             <h2>Preview</h2>
             <div className="preview-actions">
-              <button className="icon-button">🖥️</button>
-              <button className="icon-button">📱</button>
-              <button className="icon-button">⛶</button>
+              <PreviewModeButton
+                active={previewMode === "desktop"}
+                label="Desktop preview"
+                onClick={() => setPreviewMode("desktop")}
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <rect x="3.5" y="4.5" width="17" height="11" rx="2" />
+                  <path d="M9 19.5h6" />
+                  <path d="M12 15.5v4" />
+                </svg>
+              </PreviewModeButton>
+              <PreviewModeButton
+                active={previewMode === "mobile"}
+                label="Mobile preview"
+                onClick={() => setPreviewMode("mobile")}
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <rect x="7.5" y="2.5" width="9" height="19" rx="2.5" />
+                  <path d="M11 5.5h2" />
+                  <circle cx="12" cy="18" r="0.9" fill="currentColor" stroke="none" />
+                </svg>
+              </PreviewModeButton>
             </div>
           </div>
 
@@ -415,48 +543,92 @@ export default function ProductAddonsPage() {
           {error && <div className="warning-banner">{error}</div>}
           {loading && <div className="small">Loading products...</div>}
 
-          <div className="preview-product-list">
-            {previewProducts.map((product) => (
-              <div key={product.id} className="addon-card">
-                <div className="addon-card-left">
-                  <input type="checkbox" />
-                  <div
-                    className="addon-image"
-                    style={{ backgroundImage: `url(${product.featuredImageUrl})` }}
+          {previewMode === "mobile" ? (
+            <div className="mobile-preview-shell addons-mobile-shell">
+              <div className="mobile-preview-frame addons-mobile-frame">
+                <div className="mobile-preview-content addons-mobile-content">
+                  <h3
+                    className="preview-heading mobile-preview-heading"
+                    style={{
+                      textAlign: headingAlign,
+                      fontSize: `${headingFontSize}px`,
+                      color: headingColor,
+                    }}
+                  >
+                    {headingText}
+                  </h3>
+
+                  <div className="preview-product-list mobile-addon-product-list">
+                    {previewProducts.map((product) => (
+                      <ProductAddonCard
+                        key={product.id}
+                        product={product}
+                        titleColor={titleColor}
+                        showPrice={showPrice}
+                        priceColor={priceColor}
+                        showComparePrice={showComparePrice}
+                        comparePriceColor={comparePriceColor}
+                        showVariant={showVariant}
+                        selectedPrice={selectedPrice}
+                        setSelectedPrice={setSelectedPrice}
+                        isMobile
+                      />
+                    ))}
+                  </div>
+
+                  {showTotalPrice ? (
+                    <div className="mobile-total-block addons-total-block">
+                      <strong style={{ color: totalPriceColor }}>
+                        {totalPriceText}: ${totalPriceValue.toFixed(2)}
+                      </strong>
+                      {showComparePrice ? (
+                        <span style={{ color: totalComparePriceColor }}>
+                          Compare: ${comparePriceValue.toFixed(2)}
+                        </span>
+                      ) : null}
+                    </div>
+                  ) : null}
+                </div>
+              </div>
+            </div>
+          ) : (
+            <>
+              <div className={`preview-product-list ${selectedLayout === "Grid" ? "grid-view" : ""}`}>
+                {previewProducts.map((product) => (
+                  <ProductAddonCard
+                    key={product.id}
+                    product={product}
+                    titleColor={titleColor}
+                    showPrice={showPrice}
+                    priceColor={priceColor}
+                    showComparePrice={showComparePrice}
+                    comparePriceColor={comparePriceColor}
+                    showVariant={showVariant}
+                    selectedPrice={selectedPrice}
+                    setSelectedPrice={setSelectedPrice}
+                    isGrid={selectedLayout === "Grid"}
                   />
-                </div>
-                <div className="addon-card-body">
-                <div className="addon-card-row">
-                  <strong style={{ color: titleColor }}>{product.title}</strong>
-                  {showPrice && (
-                    <span className="addon-price" style={{ color: priceColor }}>${product.price?.toFixed(2) ?? "0.00"}</span>
-                  )}
-                </div>
-                {showComparePrice && (
-                  <div className="compare-price" style={{ color: comparePriceColor }}>
-                    Compare ${product.discountPrice?.toFixed(2) ?? "0.00"}
-                  </div>
-                )}
-                {showVariant && (
-                  <div className="addon-card-row addon-select-row">
-                    <select className="select small-select" value={selectedPrice} onChange={(event) => setSelectedPrice(event.target.value)}>
-                      {priceLabels.map((label) => (
-                        <option key={label} value={label}>
-                          {label}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                )}
-                {showTotalPrice && (
-                  <div className="total-price-row" style={{ color: totalPriceColor }}>
-                    {totalPriceText}: ${(product.price ?? 0).toFixed(2)}
-                  </div>
-                )}
+                ))}
               </div>
-              </div>
-            ))}
-          </div>
+
+              {showTotalPrice ? (
+                <div className="addons-preview-summary surface">
+                  <div className="addon-card-row">
+                    <strong style={{ color: totalPriceColor }}>{totalPriceText}</strong>
+                    <strong style={{ color: totalPriceColor }}>${totalPriceValue.toFixed(2)}</strong>
+                  </div>
+                  {showComparePrice ? (
+                    <div className="addon-card-row">
+                      <span className="small">Compare price</span>
+                      <span style={{ color: totalComparePriceColor }}>
+                        ${comparePriceValue.toFixed(2)}
+                      </span>
+                    </div>
+                  ) : null}
+                </div>
+              ) : null}
+            </>
+          )}
         </main>
       </div>
     </div>
