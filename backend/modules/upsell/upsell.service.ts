@@ -1,10 +1,15 @@
-import { BadRequestException, Injectable } from "@nestjs/common";
+import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { DiscountType, Product, Prisma, TriggerType } from "@prisma/client";
 import { CacheService } from "../../common/services/cache.service";
-import { toCollectionGid, toProductGid } from "../../common/utils/shopify.util";
+import {
+  parseNumericIdFromGid,
+  toCollectionGid,
+  toProductGid,
+} from "../../common/utils/shopify.util";
 import { PrismaService } from "../../database/prisma.service";
 import { ShopService } from "../shop/shop.service";
 import { CreateRuleDto } from "./dto/create-rule.dto";
+import { UpdateRuleDto } from "./dto/update-rule.dto";
 
 type Recommendation = {
   id: string;
@@ -32,31 +37,42 @@ export class UpsellService {
 
   async createRule(shopDomain: string, dto: CreateRuleDto): Promise<{ id: string }> {
     const shop = await this.shopService.getShopByDomain(shopDomain);
-    const sourceProductId = dto.sourceProductId ? toProductGid(dto.sourceProductId) : null;
-    const sourceCollectionId = dto.sourceCollectionId
-      ? toCollectionGid(dto.sourceCollectionId)
-      : null;
 
     const rule = await this.prismaService.upsellRule.create({
       data: {
+        ...(this.buildRuleWriteData(dto) as Prisma.UpsellRuleUncheckedCreateInput),
         shopId: shop.id,
-        name: dto.name,
-        triggerType: dto.triggerType,
-        sourceProductId,
-        sourceCollectionId,
-        sourceTag: dto.sourceTag?.trim().toLowerCase() || null,
-        manualRecommendations: (dto.manualRecommendations ?? []).map((item) =>
-          toProductGid(item),
-        ),
-        discountType: dto.discountType ?? DiscountType.NONE,
-        discountValue: dto.discountValue ?? 0,
-        isActive: dto.isActive ?? true,
       },
       select: { id: true },
     });
 
     this.cacheService.invalidate(`upsell:${shopDomain}:`);
     return rule;
+  }
+
+  async getRule(shopDomain: string, id: string) {
+    const shop = await this.shopService.getShopByDomain(shopDomain);
+    const rule = await this.prismaService.upsellRule.findFirst({
+      where: { id, shopId: shop.id },
+      select: {
+        id: true,
+        name: true,
+        triggerType: true,
+        sourceProductId: true,
+        sourceCollectionId: true,
+        sourceTag: true,
+        manualRecommendations: true,
+        discountType: true,
+        discountValue: true,
+        isActive: true,
+      },
+    });
+
+    if (!rule) {
+      throw new NotFoundException("Upsell rule not found.");
+    }
+
+    return this.serializeRule(rule);
   }
 
   async listRules(shopDomain: string): Promise<
@@ -74,7 +90,7 @@ export class UpsellService {
     }>
   > {
     const shop = await this.shopService.getShopByDomain(shopDomain);
-    return this.prismaService.upsellRule.findMany({
+    const rules = await this.prismaService.upsellRule.findMany({
       where: { shopId: shop.id },
       orderBy: { createdAt: "desc" },
       select: {
@@ -90,6 +106,33 @@ export class UpsellService {
         isActive: true,
       },
     });
+
+    return rules.map((rule) => this.serializeRule(rule));
+  }
+
+  async updateRule(
+    shopDomain: string,
+    id: string,
+    dto: UpdateRuleDto,
+  ): Promise<{ id: string }> {
+    const shop = await this.shopService.getShopByDomain(shopDomain);
+    const existingRule = await this.prismaService.upsellRule.findFirst({
+      where: { id, shopId: shop.id },
+      select: { id: true },
+    });
+
+    if (!existingRule) {
+      throw new NotFoundException("Upsell rule not found.");
+    }
+
+    await this.prismaService.upsellRule.update({
+      where: { id },
+      data: this.buildRuleWriteData(dto),
+      select: { id: true },
+    });
+
+    this.cacheService.invalidate(`upsell:${shopDomain}:`);
+    return { id };
   }
 
   async deleteRule(shopDomain: string, id: string): Promise<void> {
@@ -269,5 +312,66 @@ export class UpsellService {
     });
 
     return items.map((item) => item.productGid);
+  }
+
+  private buildRuleWriteData(
+    dto: CreateRuleDto | UpdateRuleDto,
+  ): Prisma.UpsellRuleUncheckedCreateInput | Prisma.UpsellRuleUncheckedUpdateInput {
+    const data: Prisma.UpsellRuleUncheckedCreateInput | Prisma.UpsellRuleUncheckedUpdateInput = {};
+
+    if (dto.name !== undefined) {
+      data.name = dto.name;
+    }
+    if (dto.triggerType !== undefined) {
+      data.triggerType = dto.triggerType;
+    }
+    if (dto.sourceProductId !== undefined) {
+      data.sourceProductId = dto.sourceProductId ? toProductGid(dto.sourceProductId) : null;
+    }
+    if (dto.sourceCollectionId !== undefined) {
+      data.sourceCollectionId = dto.sourceCollectionId
+        ? toCollectionGid(dto.sourceCollectionId)
+        : null;
+    }
+    if (dto.sourceTag !== undefined) {
+      data.sourceTag = dto.sourceTag?.trim().toLowerCase() || null;
+    }
+    if (dto.manualRecommendations !== undefined) {
+      data.manualRecommendations = dto.manualRecommendations.map((item) => toProductGid(item));
+    }
+    if (dto.discountType !== undefined) {
+      data.discountType = dto.discountType;
+    }
+    if (dto.discountValue !== undefined) {
+      data.discountValue = dto.discountValue;
+    }
+    if (dto.isActive !== undefined) {
+      data.isActive = dto.isActive;
+    }
+
+    return data;
+  }
+
+  private serializeRule(rule: {
+    id: string;
+    name: string;
+    triggerType: TriggerType;
+    sourceProductId: string | null;
+    sourceCollectionId: string | null;
+    sourceTag: string | null;
+    manualRecommendations: string[];
+    discountType: DiscountType;
+    discountValue: number;
+    isActive: boolean;
+  }) {
+    return {
+      ...rule,
+      sourceProductId: parseNumericIdFromGid(rule.sourceProductId) ?? rule.sourceProductId,
+      sourceCollectionId:
+        parseNumericIdFromGid(rule.sourceCollectionId) ?? rule.sourceCollectionId,
+      manualRecommendations: rule.manualRecommendations.map(
+        (item) => parseNumericIdFromGid(item) ?? item,
+      ),
+    };
   }
 }

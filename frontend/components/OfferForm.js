@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 const initialState = {
   name: "",
@@ -14,19 +14,101 @@ const initialState = {
   isActive: true,
 };
 
-export default function OfferForm({ onSave, initialData = {} }) {
-  const [form, setForm] = useState({
-    ...initialState,
-    ...initialData,
-    manualRecommendations: Array.isArray(initialData.manualRecommendations)
-      ? initialData.manualRecommendations.join(", ")
-      : initialData.manualRecommendations ?? "",
+function mergeUniqueProducts(primary, secondary) {
+  const merged = new Map();
+
+  [...primary, ...secondary].forEach((product) => {
+    if (product?.productGid) {
+      merged.set(product.productGid, product);
+    }
   });
+
+  return Array.from(merged.values());
+}
+
+function getShopifyProductId(product) {
+  const rawValue = product?.productGid || product?.id || "";
+  const segments = String(rawValue).split("/");
+  return segments[segments.length - 1] || rawValue;
+}
+
+export default function OfferForm({ onSave, initialData = {}, apiFetch, isReady }) {
+  const buildFormState = (source) => ({
+    ...initialState,
+    ...source,
+    manualRecommendations: Array.isArray(source.manualRecommendations)
+      ? source.manualRecommendations.join(", ")
+      : source.manualRecommendations ?? "",
+  });
+  const [form, setForm] = useState(buildFormState(initialData));
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [productOptions, setProductOptions] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchLoading, setSearchLoading] = useState(false);
 
   const update = (key, value) => {
     setForm((current) => ({ ...current, [key]: value }));
+  };
+
+  useEffect(() => {
+    setForm(buildFormState(initialData));
+  }, [initialData]);
+
+  useEffect(() => {
+    if (!apiFetch || !isReady) {
+      return;
+    }
+
+    let cancelled = false;
+
+    const loadProducts = async () => {
+      try {
+        setSearchLoading(true);
+        const query = searchQuery.trim();
+        const endpoint = query
+          ? `/shop/products?q=${encodeURIComponent(query)}&limit=20`
+          : "/shop/products?limit=20";
+        const products = await apiFetch(endpoint);
+
+        if (!cancelled) {
+          setProductOptions((current) => mergeUniqueProducts(products || [], current));
+        }
+      } catch (_err) {
+        if (!cancelled) {
+          setProductOptions((current) => current);
+        }
+      } finally {
+        if (!cancelled) {
+          setSearchLoading(false);
+        }
+      }
+    };
+
+    loadProducts();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [apiFetch, isReady, searchQuery]);
+
+  const selectedRecommendationIds = useMemo(
+    () =>
+      form.manualRecommendations
+        .split(",")
+        .map((item) => item.trim())
+        .filter(Boolean),
+    [form.manualRecommendations],
+  );
+
+  const toggleRecommendation = (productId) => {
+    const nextValues = new Set(selectedRecommendationIds);
+    if (nextValues.has(productId)) {
+      nextValues.delete(productId);
+    } else {
+      nextValues.add(productId);
+    }
+    update("manualRecommendations", Array.from(nextValues).join(", "));
   };
 
   const submit = async (event) => {
@@ -84,11 +166,19 @@ export default function OfferForm({ onSave, initialData = {} }) {
 
       <div>
         <label className="small">Source product ID (numeric or GID)</label>
-        <input
-          className="input"
+        <select
+          className="select"
           value={form.sourceProductId}
           onChange={(event) => update("sourceProductId", event.target.value)}
-        />
+          disabled={form.triggerType !== "PRODUCT"}
+        >
+          <option value="">Any product</option>
+          {productOptions.map((product) => (
+            <option key={product.productGid} value={getShopifyProductId(product)}>
+              {product.title}
+            </option>
+          ))}
+        </select>
       </div>
 
       <div>
@@ -111,12 +201,50 @@ export default function OfferForm({ onSave, initialData = {} }) {
       </div>
 
       <div>
-        <label className="small">Manual recommendations (comma-separated product IDs)</label>
+        <label className="small">Find products to recommend</label>
+        <input
+          className="input"
+          value={searchQuery}
+          onChange={(event) => setSearchQuery(event.target.value)}
+          placeholder="Search products by title"
+        />
+        <div className="small" style={{ marginTop: 8 }}>
+          {searchLoading ? "Loading products..." : `${productOptions.length} products available`}
+        </div>
+      </div>
+
+      <div>
+        <label className="small">Manual recommendations</label>
+        <div className="surface" style={{ padding: 12, maxHeight: 280, overflowY: "auto" }}>
+          {productOptions.length === 0 ? <div className="small">No products found yet.</div> : null}
+          {productOptions.map((product) => {
+            const productId = getShopifyProductId(product);
+            const isSelected = selectedRecommendationIds.includes(productId);
+
+            return (
+              <label
+                key={product.productGid}
+                className="small"
+                style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}
+              >
+                <input
+                  type="checkbox"
+                  checked={isSelected}
+                  onChange={() => toggleRecommendation(productId)}
+                />
+                <span style={{ flex: 1 }}>{product.title}</span>
+                <span>{product.currencyCode || ""} {Number(product.price || 0).toFixed(2)}</span>
+              </label>
+            );
+          })}
+        </div>
         <textarea
           className="textarea"
           rows={3}
           value={form.manualRecommendations}
           onChange={(event) => update("manualRecommendations", event.target.value)}
+          placeholder="Selected product IDs appear here"
+          style={{ marginTop: 12 }}
         />
       </div>
 

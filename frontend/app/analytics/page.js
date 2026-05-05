@@ -12,6 +12,8 @@ const summaryDefaults = {
   conversionRate: 0,
   impressions: 0,
   conversions: 0,
+  dailySeries: [],
+  topProducts: [],
 };
 
 const breakdownItems = [
@@ -72,7 +74,8 @@ export default function AnalyticsPage() {
     };
   }, [apiFetch, isReady]);
 
-  const salesSeries = [8, 22, 30, 20, 18, 24, 32, 28, 26, 34, 24, 28, 22, 18, 30, 36, 28, 24, 20, 18, 22, 26, 32, 30, 28, 34, 36, 32, 26, 30];
+  const salesSeries = summary.dailySeries?.length ? summary.dailySeries : [0];
+  const maxSeriesValue = Math.max(...salesSeries, 1);
 
   return (
     <div className="page-section analytics-page">
@@ -84,7 +87,7 @@ export default function AnalyticsPage() {
       </div>
 
       <div className="analytics-kpi-grid">
-        <KpiCard title="Wiser Generated Sales" value={`₹${summary.sales.toLocaleString()}`} subtitle="Since 17 Apr 2026" />
+        <KpiCard title="Wiser Generated Sales" value={`Rs ${summary.sales.toLocaleString()}`} subtitle="Last 30 days" />
         <KpiCard title="Total Clicks" value={summary.clicks} subtitle="Clicks on widgets" />
         <KpiCard title="Added To Cart" value={summary.addedToCart} subtitle="Products added from upsells" />
         <KpiCard title="Conversion Rate" value={formatPercent(summary.conversionRate)} subtitle="Clicks to conversions" />
@@ -105,7 +108,11 @@ export default function AnalyticsPage() {
         <div className="analytics-chart">
           <div className="analytics-chart-grid">
             {salesSeries.map((bar, index) => (
-              <div key={index} className="analytics-chart-bar" style={{ height: `${bar}%` }} />
+              <div
+                key={index}
+                className="analytics-chart-bar"
+                style={{ height: `${Math.max((bar / maxSeriesValue) * 100, 6)}%` }}
+              />
             ))}
           </div>
           <div className="analytics-chart-legend">
@@ -134,13 +141,20 @@ export default function AnalyticsPage() {
           <button className="button-link small">Show</button>
         </div>
         <div className="analytics-products-grid">
-          {Array.from({ length: 4 }).map((_, index) => (
-            <div key={index} className="analytics-product-item">
+          {(summary.topProducts?.length
+            ? summary.topProducts
+            : Array.from({ length: 4 }).map((_, index) => ({
+                productId: `placeholder-${index}`,
+                title: `Product ${index + 1}`,
+                sales: 0,
+                conversions: 0,
+              }))).map((product) => (
+            <div key={product.productId} className="analytics-product-item">
               <div>
-                <strong>Product {index + 1}</strong>
-                <p className="small">₹0.00</p>
+                <strong>{product.title}</strong>
+                <p className="small">Rs {Number(product.sales || 0).toFixed(2)}</p>
               </div>
-              <span className="small">Rank {index + 1}</span>
+              <span className="small">{product.conversions || 0} conversions</span>
             </div>
           ))}
         </div>
