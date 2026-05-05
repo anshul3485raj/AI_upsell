@@ -182,7 +182,7 @@ export default function DashboardPage() {
                 <Sparkles size={14} />
                 <span>New</span>
               </div>
-              <h2>30-Day Goal with Thank You Page Upsells</h2>
+              <h2>30-Day Goal with Thank You Page Upsells newwww</h2>
               <p>Boost extra revenue right after checkout</p>
 
               <div className="progress-bar-bg">
