@@ -1463,7 +1463,7 @@ select.select.translations-language-select {
 }
 
 .surface button.btn.secondary {
-  width: fit-content;
+  width: stretch;
   font-size: 16px;
 }
 
