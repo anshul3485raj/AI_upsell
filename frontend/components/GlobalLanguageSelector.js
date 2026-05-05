@@ -23,22 +23,26 @@ const languages = [
   { value: "tr", label: "Turkish" },
 ];
 
+// ✅ FIX 1: Safe cookie (no domain)
 function setTranslateCookie(value) {
   document.cookie = `googtrans=${value};path=/`;
-
-  const hostname = window.location.hostname;
-  if (hostname.includes(".")) {
-    document.cookie = `googtrans=${value};path=/;domain=.${hostname}`;
-  }
 }
 
+// ✅ FIX 2: Read cookie safely
 function getTranslateCookie() {
   const match = document.cookie.match(/(?:^|;\s*)googtrans=([^;]+)/);
   return match ? decodeURIComponent(match[1]) : "";
 }
 
-function triggerGoogleTranslate(language) {
+// ✅ FIX 3: Retry mechanism (important for Shopify iframe)
+function triggerGoogleTranslate(language, retry = 10) {
   const combo = document.querySelector(".goog-te-combo");
+
+  if (!combo && retry > 0) {
+    setTimeout(() => triggerGoogleTranslate(language, retry - 1), 300);
+    return false;
+  }
+
   if (!combo) return false;
 
   combo.value = language;
@@ -50,15 +54,16 @@ export default function GlobalLanguageSelector() {
   const pathname = usePathname();
   const [selectedLanguage, setSelectedLanguage] = useState("");
 
+  // Load saved language
   useEffect(() => {
-    const existingCookie = getTranslateCookie();
-    if (!existingCookie) return;
+    const cookie = getTranslateCookie();
+    if (!cookie) return;
 
-    const parts = existingCookie.split("/");
-    const currentLanguage = parts[2] || "";
-    setSelectedLanguage(currentLanguage === "en" ? "" : currentLanguage);
+    const lang = cookie.split("/")[2] || "";
+    setSelectedLanguage(lang === "en" ? "" : lang);
   }, []);
 
+  // Load Google Translate Script
   useEffect(() => {
     window.googleTranslateElementInit = () => {
       if (!window.google?.translate?.TranslateElement) return;
@@ -67,22 +72,19 @@ export default function GlobalLanguageSelector() {
         {
           pageLanguage: "en",
           includedLanguages: languages
-            .filter((item) => item.value)
-            .map((item) => item.value)
+            .filter((l) => l.value)
+            .map((l) => l.value)
             .join(","),
           autoDisplay: false,
-          layout:
-            window.google.translate.TranslateElement.InlineLayout.SIMPLE,
         },
-        "google_translate_element",
+        "google_translate_element"
       );
 
-      const existingCookie = getTranslateCookie();
-      const currentLanguage = existingCookie.split("/")[2] || "";
-      if (currentLanguage && currentLanguage !== "en") {
-        window.setTimeout(() => {
-          triggerGoogleTranslate(currentLanguage);
-        }, 700);
+      const cookie = getTranslateCookie();
+      const lang = cookie.split("/")[2];
+
+      if (lang && lang !== "en") {
+        setTimeout(() => triggerGoogleTranslate(lang), 800);
       }
     };
 
@@ -93,7 +95,7 @@ export default function GlobalLanguageSelector() {
         "https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit";
       script.async = true;
       document.body.appendChild(script);
-    } else if (window.google?.translate?.TranslateElement) {
+    } else {
       window.googleTranslateElementInit();
     }
 
@@ -102,36 +104,27 @@ export default function GlobalLanguageSelector() {
     };
   }, []);
 
+  // Re-trigger on route change (Shopify safe)
   useEffect(() => {
     if (!selectedLanguage) return;
 
-    const timer = window.setTimeout(() => {
+    setTimeout(() => {
       triggerGoogleTranslate(selectedLanguage);
-    }, 500);
+    }, 600);
+  }, [pathname]);
 
-    return () => window.clearTimeout(timer);
-  }, [pathname, selectedLanguage]);
+  const handleLanguageChange = (e) => {
+    const lang = e.target.value;
+    setSelectedLanguage(lang);
 
-  const handleLanguageChange = (event) => {
-    const language = event.target.value;
-    setSelectedLanguage(language);
-
-    if (!language || language === "en") {
+    if (!lang || lang === "en") {
       setTranslateCookie("/en/en");
-      window.location.reload();
+      triggerGoogleTranslate("en");
       return;
     }
 
-    setTranslateCookie(`/en/${language}`);
-
-    if (!triggerGoogleTranslate(language)) {
-      window.location.reload();
-      return;
-    }
-
-    window.setTimeout(() => {
-      window.location.reload();
-    }, 250);
+    setTranslateCookie(`/en/${lang}`);
+    triggerGoogleTranslate(lang);
   };
 
   return (
@@ -142,14 +135,19 @@ export default function GlobalLanguageSelector() {
           value={selectedLanguage}
           onChange={handleLanguageChange}
         >
-          {languages.map((language) => (
-            <option key={language.label} value={language.value}>
-              {language.label}
+          {languages.map((l) => (
+            <option key={l.label} value={l.value}>
+              {l.label}
             </option>
           ))}
         </select>
       </label>
-      <div id="google_translate_element" className="google-translate-element" />
+
+      {/* Hidden Google element */}
+      <div
+        id="google_translate_element"
+        style={{ display: "none" }}
+      />
     </>
   );
 }
