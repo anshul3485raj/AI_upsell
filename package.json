@@ -11,6 +11,8 @@
     "build": "npm run build --workspace=backend && npm run build --workspace=frontend && shopify app build"
   },
   "dependencies": {
-    "lucide-react": "^1.8.0"
+    "i18next": "^26.0.8",
+    "lucide-react": "^1.8.0",
+    "react-i18next": "^17.0.6"
   }
 }
