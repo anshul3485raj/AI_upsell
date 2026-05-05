@@ -35,6 +35,7 @@ export class AppModule implements NestModule {
 
     consumer.apply(SessionValidatorMiddleware).forRoutes(
       { path: "shop/me", method: RequestMethod.GET },
+      { path: "shop/products", method: RequestMethod.GET },
       { path: "shop/token", method: RequestMethod.PUT },
       { path: "upsell/rules", method: RequestMethod.ALL },
       { path: "upsell/rules/:id", method: RequestMethod.ALL },

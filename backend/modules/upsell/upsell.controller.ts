@@ -1,17 +1,19 @@
 import {
   BadRequestException,
+  Body,
   Controller,
   Delete,
   Get,
+  Patch,
   Param,
   Post,
   Query,
   Req,
-  Body,
 } from "@nestjs/common";
 import { Request } from "express";
 import { sanitizeShopDomain } from "../../common/utils/shopify.util";
 import { CreateRuleDto } from "./dto/create-rule.dto";
+import { UpdateRuleDto } from "./dto/update-rule.dto";
 import { UpsellService } from "./upsell.service";
 
 @Controller("upsell")
@@ -69,12 +71,28 @@ export class UpsellController {
     return this.upsellService.listRules(req.shopDomain);
   }
 
+  @Get("rules/:id")
+  async getRule(@Req() req: Request, @Param("id") id: string) {
+    if (!req.shopDomain) {
+      throw new BadRequestException("Missing shop domain in session token.");
+    }
+    return this.upsellService.getRule(req.shopDomain, id);
+  }
+
   @Post("rules")
   async createRule(@Req() req: Request, @Body() dto: CreateRuleDto) {
     if (!req.shopDomain) {
       throw new BadRequestException("Missing shop domain in session token.");
     }
     return this.upsellService.createRule(req.shopDomain, dto);
+  }
+
+  @Patch("rules/:id")
+  async updateRule(@Req() req: Request, @Param("id") id: string, @Body() dto: UpdateRuleDto) {
+    if (!req.shopDomain) {
+      throw new BadRequestException("Missing shop domain in session token.");
+    }
+    return this.upsellService.updateRule(req.shopDomain, id, dto);
   }
 
   @Delete("rules/:id")

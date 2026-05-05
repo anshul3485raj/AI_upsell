@@ -1,13 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
-import OfferForm from "../../components/OfferForm";
-import { useAuthenticatedFetch } from "../../hooks/useAuthenticatedFetch";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
+import OfferForm from "../../../components/OfferForm";
+import { useAuthenticatedFetch } from "../../../hooks/useAuthenticatedFetch";
 
 export default function EditOfferPage() {
   const { id } = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const embeddedParams = searchParams.toString();
   const { apiFetch, isReady } = useAuthenticatedFetch();
   const [rule, setRule] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -40,7 +42,7 @@ export default function EditOfferPage() {
         body: JSON.stringify(payload),
       });
       setMessage("Upsell rule updated successfully.");
-      setTimeout(() => router.push("/dashboard"), 1500);
+      setTimeout(() => router.push(embeddedParams ? `/dashboard?${embeddedParams}` : "/dashboard"), 1500);
     } catch (err) {
       setError(err.message || "Failed to update upsell rule.");
     }
@@ -60,6 +62,8 @@ export default function EditOfferPage() {
         {rule && (
           <OfferForm
             onSave={updateRule}
+            apiFetch={apiFetch}
+            isReady={isReady}
             initialData={rule}
           />
         )}

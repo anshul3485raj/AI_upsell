@@ -61,7 +61,22 @@ export class AnalyticsController {
   async summary(
     @Req() req: Request,
     @Query("days") daysRaw?: string,
-  ): Promise<{ impressions: number; conversions: number; conversionRate: number }> {
+  ): Promise<{
+    sales: number;
+    clicks: number;
+    addedToCart: number;
+    impressions: number;
+    conversions: number;
+    conversionRate: number;
+    dailySeries: number[];
+    topProducts: Array<{
+      productId: string;
+      title: string;
+      sales: number;
+      conversions: number;
+      imageUrl: string | null;
+    }>;
+  }> {
     if (!req.shopDomain) {
       throw new BadRequestException("Missing shop domain in session token.");
     }

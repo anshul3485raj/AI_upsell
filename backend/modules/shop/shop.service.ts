@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
+import { Prisma } from "@prisma/client";
 import { PrismaService } from "../../database/prisma.service";
 import { ShopifyGraphqlService } from "../../common/services/shopify-graphql.service";
 import { parseNumericIdFromGid, toProductGid } from "../../common/utils/shopify.util";
@@ -339,7 +340,7 @@ export class ShopService {
 
   async listProducts(shopDomain: string, searchQuery?: string, limit = 20) {
     const shop = await this.getShopByDomain(shopDomain);
-    const whereClause = {
+    const whereClause: Prisma.ProductWhereInput = {
       shopId: shop.id,
       title: searchQuery ? { contains: searchQuery, mode: "insensitive" } : undefined,
     };
@@ -417,7 +418,7 @@ export class ShopService {
       query,
     });
 
-    return data.products.edges.map((edge) => {
+    const products = data.products.edges.map((edge) => {
       const node = edge.node;
       const firstVariant = node.variants.nodes[0];
       return {
@@ -431,6 +432,41 @@ export class ShopService {
         variantGid: firstVariant?.id ?? null,
       };
     });
+
+    await Promise.all(
+      products.map((product) =>
+        this.prismaService.product.upsert({
+          where: {
+            shopId_productGid: {
+              shopId: shop.id,
+              productGid: product.productGid,
+            },
+          },
+          create: {
+            shopId: shop.id,
+            productGid: product.productGid,
+            title: product.title,
+            handle: product.handle,
+            featuredImageUrl: product.featuredImageUrl,
+            minPrice: product.price,
+            currencyCode: product.currencyCode,
+            firstVariantGid: product.variantGid,
+            updatedFromShopifyAt: new Date(),
+          },
+          update: {
+            title: product.title,
+            handle: product.handle,
+            featuredImageUrl: product.featuredImageUrl,
+            minPrice: product.price,
+            currencyCode: product.currencyCode,
+            firstVariantGid: product.variantGid,
+            updatedFromShopifyAt: new Date(),
+          },
+        }),
+      ),
+    );
+
+    return products;
   }
 
   private async fetchLatestProductData(

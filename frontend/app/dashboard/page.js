@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useAuthenticatedFetch } from "../../hooks/useAuthenticatedFetch";
 import { Sparkles } from "lucide-react";
 import KpiCard from "../../components/KpiCard";
@@ -31,11 +32,19 @@ const widgetItems = [
 
 export default function DashboardPage() {
   const { apiFetch, isReady } = useAuthenticatedFetch();
+  const searchParams = useSearchParams();
+  const embeddedParams = searchParams.toString();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [shop, setShop] = useState(null);
   const [rules, setRules] = useState([]);
-  const [summary, setSummary] = useState({ sales: 0, impressions: 0, conversions: 0, clicks: 0 });
+  const [summary, setSummary] = useState({
+    sales: 0,
+    impressions: 0,
+    conversions: 0,
+    clicks: 0,
+    addedToCart: 0,
+  });
 
   const [activeWidget, setActiveWidget] = useState(null);
   const [widgetSettings, setWidgetSettings] = useState({});
@@ -52,7 +61,13 @@ export default function DashboardPage() {
       ]);
       setShop(shopData);
       setRules(ruleData);
-      setSummary(summaryData || { sales: 0, impressions: 0, conversions: 0, clicks: 0 });
+      setSummary(summaryData || {
+        sales: 0,
+        impressions: 0,
+        conversions: 0,
+        clicks: 0,
+        addedToCart: 0,
+      });
     } catch (err) {
       setError(err.message || "Unable to load dashboard.");
     } finally {
@@ -97,8 +112,8 @@ export default function DashboardPage() {
   };
 
   const saveWidgetSettings = () => {
-    console.log("Saving widget settings:", widgetSettings);
-    alert("Saved (connect API later)");
+    console.log("Widget configuration draft:", widgetSettings);
+    alert("Widget editor is saved locally in this session. Upsell rules are fully operational below.");
   };
 
   const counts = useMemo(() => {
@@ -190,8 +205,8 @@ export default function DashboardPage() {
               </div>
 
               <div className="goal-row">
-                <span>₹{summary.sales}</span>
-                <span>Target ₹{goalAmount}</span>
+                <span>Rs {summary.sales}</span>
+                <span>Target Rs {goalAmount}</span>
               </div>
             </div>
 
@@ -211,7 +226,11 @@ export default function DashboardPage() {
             <KpiCard title="Impressions" value={summary.impressions.toLocaleString()} />
             <KpiCard title="Clicks" value={summary.clicks.toLocaleString()} />
             <KpiCard title="Conversions" value={summary.conversions.toLocaleString()} />
+            <KpiCard title="Active Rules" value={counts.activeRules.toLocaleString()} />
           </div>
+
+          {loading ? <p className="small">Loading dashboard data...</p> : null}
+          {error ? <p className="small error-text">{error}</p> : null}
 
           {/* SETUP WIDGETS */}
           <section className="surface setup-card">
@@ -237,7 +256,7 @@ export default function DashboardPage() {
                     </div>
 
                     <div className="widget-body">
-                      <div className="widget-price">₹0.00</div>
+                      <div className="widget-price">Rs 0.00</div>
                     </div>
 
                     <div className="widget-actions">
@@ -295,7 +314,7 @@ export default function DashboardPage() {
           <section className="surface rules-panel">
             <div className="section-header">
               <h2>Active Upsell Rules</h2>
-              <Link href="/create-offer" className="button-link">+ Create New Rule</Link>
+              <Link href={embeddedParams ? `/create-offer?${embeddedParams}` : "/create-offer"} className="button-link">+ Create New Rule</Link>
             </div>
 
             <table className="table">
@@ -303,16 +322,25 @@ export default function DashboardPage() {
                 {rules.map((rule) => (
                   <tr key={rule.id}>
                     <td>{rule.name}</td>
+                    <td>{rule.triggerType === "PRODUCT" ? "Product" : "Cart"}</td>
                     <td>
                       <button onClick={() => toggleRule(rule.id, rule.isActive)}>
                         {rule.isActive ? "Active" : "Paused"}
                       </button>
                     </td>
                     <td>
+                      <Link href={embeddedParams ? `/edit-offer/${rule.id}?${embeddedParams}` : `/edit-offer/${rule.id}`} className="button-link">Edit</Link>
+                    </td>
+                    <td>
                       <button onClick={() => deleteRule(rule.id)}>Delete</button>
                     </td>
                   </tr>
                 ))}
+                {rules.length === 0 ? (
+                  <tr>
+                    <td colSpan="5">No rules created yet. Create your first upsell rule to start serving recommendations.</td>
+                  </tr>
+                ) : null}
               </tbody>
             </table>
           </section>

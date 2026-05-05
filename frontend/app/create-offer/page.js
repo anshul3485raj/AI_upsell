@@ -10,6 +10,7 @@ export default function CreateOfferPage() {
   const { apiFetch, isReady } = useAuthenticatedFetch();
   const router = useRouter();
   const searchParams = useSearchParams();
+  const embeddedParams = searchParams.toString();
   const triggerType = searchParams.get("trigger") || "PRODUCT";
   const widgetName = searchParams.get("widget") || "";
   const [message, setMessage] = useState("");
@@ -27,7 +28,7 @@ export default function CreateOfferPage() {
         body: JSON.stringify(payload),
       });
       setMessage("Upsell rule created successfully.");
-      setTimeout(() => router.push("/dashboard"), 1500);
+      setTimeout(() => router.push(embeddedParams ? `/dashboard?${embeddedParams}` : "/dashboard"), 1500);
     } catch (err) {
       setError(err.message || "Failed to create upsell rule.");
     }
@@ -45,6 +46,8 @@ export default function CreateOfferPage() {
       <div className="surface">
         <OfferForm
           onSave={saveRule}
+          apiFetch={apiFetch}
+          isReady={isReady}
           initialData={{
             triggerType,
             name: widgetName ? `${widgetName} Upsell` : "",
